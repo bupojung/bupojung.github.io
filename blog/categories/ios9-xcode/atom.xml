@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Bupo's Blog]]></title>
-  <link href="http://bupojung.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: ios9,xcode | Bupo's Blog]]></title>
+  <link href="http://bupojung.github.io/blog/categories/ios9-xcode/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
   <updated>2015-11-30T01:05:40+08:00</updated>
   <id>http://bupojung.github.io/</id>
@@ -37,7 +37,7 @@
 
 <p>为了解决这个问题，苹果提出了App Slicing，Xcode在创建安装包的时候对针对不同设备的资源和二进制数据进行标记，并创建一个支持不同设备的安装包，提交到AppStore。用户在下载应用的时候，AppStore根据用户的设备类型生成只针对该设备的安装包。这样对用户来说就减少了安装包大小，不需要下载多余的数据。</p>
 
-<p><img src="http://bupojung.github.io/static/appthining" alt="Alt text" /></p>
+<p><img src="/static/appthining" alt="Alt text" /></p>
 
 <p>新版的XCode将会支持App Slicing，开发者可以生成一个通用的安装包，然后导出针对不同特定设备的安装包进行安装包大小比较，同时用针对不同设备的安装包进行测试。</p>
 
