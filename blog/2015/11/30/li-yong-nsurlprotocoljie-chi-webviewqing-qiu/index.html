@@ -1,24 +1,89 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Bupo's Blog]]></title>
-  <link href="http://bupojung.github.io/atom.xml" rel="self"/>
-  <link href="http://bupojung.github.io/"/>
-  <updated>2015-11-30T11:10:38+08:00</updated>
-  <id>http://bupojung.github.io/</id>
-  <author>
-    <name><![CDATA[bupo]]></name>
-    <email><![CDATA[bupo.jung@gmail.com]]></email>
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE HTML>
 
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>利用NSURLProtocol劫持WebView请求 - Bupo's Blog</title>
+	<meta name="author" content="bupo">
+
+	
+	<meta name="description" content="利用NSURLProtocol劫持WebView请求 利用NSURLProtocol劫持WebView请求 背景: 由于很多增值业务使用的是H5页面实现，在开发测试过程中页面不能发布到正式环境，开发、测试以及产品同学需要配置代理或者配host来体验产品，这样测试和体验产品的效率比较低， &hellip;">
+	
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bupo's Blog" type="application/atom+xml">
+	
+	<link rel="canonical" href="http://bupojung.github.io/blog/2015/11/30/li-yong-nsurlprotocoljie-chi-webviewqing-qiu/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link href='http://fonts.googleapis.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	
   
-  <entry>
-    <title type="html"><![CDATA[利用NSURLProtocol劫持WebView请求]]></title>
-    <link href="http://bupojung.github.io/blog/2015/11/30/li-yong-nsurlprotocoljie-chi-webviewqing-qiu/"/>
-    <updated>2015-11-30T11:08:36+08:00</updated>
-    <id>http://bupojung.github.io/blog/2015/11/30/li-yong-nsurlprotocoljie-chi-webviewqing-qiu</id>
-    <content type="html"><![CDATA[<h2>利用NSURLProtocol劫持WebView请求</h2>
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<script src="/javascripts/md5.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$('.profilepic').append("<img src='http://www.gravatar.com/avatar/" + MD5("bupo.jung@gmail.com") + "?s=160' alt='Profile Picture' style='width: 160px;' />");
+		});
+	</script>
+	
+</div>
+
+<nav id="main-nav"><ul class="main-navigation"> <li><a href="/">Blog</a></li> <li><a href="/blog/archives">Archives</a></li> <li><a href="/about">About Me</a></li> </ul>
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+			<a class="email" href="mailto:bupo.jung@gmail.com" title="Email">Email</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    	
+    	
+			<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">利用NSURLProtocol劫持WebView请求</h1>
+	<div class="entry-content" itemprop="articleBody"><h2>利用NSURLProtocol劫持WebView请求</h2>
 
 <h3>背景:</h3>
 
@@ -27,7 +92,7 @@
 <h3>NSURLProtocol：</h3>
 
 <p>任何通过NSURLConnection发起的请求都会被NSURLProtocol截获，NSURLProtocol是一个抽象类，我们可以继承它实现自定义的URL加载行为。并将自定义的NSURLProtocol子类注册到NSURLProtocol，每次NSURLConnection发起请求被NSURLProtocol截获后将遍历已注册的子类是否能响应这个请求，响应请求的NSURLProtocol子类将发起请求并处理请求回调，将结果通知到NSURLConnection，所有实际的URL加载过程都是在NSURLProtocol子类完成。系统提供了现成的NSURLProtocol子类有：NSHTTPURLProtocol，NSFTPURLProtocol，NSFileURLProtocol等。具体的交互过程如下图所示：
-<img src="http://bupojung.github.io/static/2015/11/30/NSURLProtocol_Sequence_Diagram" alt="NSURLProtoco" /></p>
+<img src="/static/2015/11/30/NSURLProtocol_Sequence_Diagram" alt="NSURLProtoco" /></p>
 
 <blockquote><p>注：NSURLProtocol在遍历子类的过程是反向遍历的，最后注册的子类会先被遍历，这样自定义的子类将能提前截获请求，当一个子类截获请求后，将终止遍历。</p></blockquote>
 
@@ -68,7 +133,7 @@
 </ul>
 
 
-<p><img src="http://bupojung.github.io/static/2015/11/30/NSURLProtocol_implement" alt="实现步骤" /></p>
+<p><img src="/static/2015/11/30/NSURLProtocol_implement" alt="实现步骤" /></p>
 
 <blockquote><p>注意：在第2个步骤中，需要标记新创建的Request对象，由于NSURLConnection发起请求，又会被protocol截获处理，这样可能陷入死循环。所以这里需要给新创建的request标记，在+ (BOOL)canInitWithRequest:(NSURLRequest *)request方法中截获到标记过的request直接返回NO，不处理。
  步骤3，需要处理重定向请求，由于新发起的请求被标记过，如果请求被重定向，protocol将不再处理重定向的请求，这样重定向的请求就无法截获。这里的方法是截获重定向请求，将request的标记删除。</p></blockquote>
@@ -389,46 +454,52 @@
 </span><span class='line'>}
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[App Thinning]]></title>
-    <link href="http://bupojung.github.io/blog/2015/11/30/app-thinning/"/>
-    <updated>2015-11-30T00:25:58+08:00</updated>
-    <id>http://bupojung.github.io/blog/2015/11/30/app-thinning</id>
-    <content type="html"><![CDATA[<h2>App Thinning</h2>
+</div>
 
-<p>@(学习)[ios9|xcode]</p>
+</article>
 
-<blockquote><p>iOS8刚发布的时候，要更新到最新版本需要用户手机至少5.7GB的剩余空间，导致很多16GB手机的用户不愿意升级到最新版本。苹果为了提高新版本的覆盖率，在iOS9做了一系列的安装包大小的优化，更新到iOS9只需要1.3GB的剩余空间。除了对系统包大小进行优化外，苹果为了为用户腾出更多的空间，推出了一些列方案为应用减少包大小，也就是App Thinning。</p></blockquote>
+	<div class="share">
+	
+     	<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js"></script>
+<!-- UY END -->
 
-<p>App Thining包括三项技术：
-* App Slicing
-* On Demand Resources (ODR)
-* BitCode</p>
 
-<p>这三项技术通过优化安装包生成，发布，下载的流程来减少应用最终安装到用户手机上的占用空间。下面分别介绍：</p>
+ 	
+</div>
 
-<h3>App Slicing</h3>
 
-<p>大部分应用需要支持不同的苹果设备，包括iPhone4~iPhone6P,各种iPad，不同的设备有不同的屏幕分辨率，不同的屏幕尺寸，不同的CPU和GPU，一般情况下应用会把所有的 支持不同设备的资源（1x,2x,3x的图片，支持GPU的渲染资源）和支持不同硬件架构的二进制代码（支持32bit和64bit）都打包到安装包提交到AppStore，然后用户下载安装应用，这样用户的手机空间里就会包含很多冗余的数据。</p>
+</div>
+			</div>
+			<footer id="footer" class="inner">Copyright &copy; 2015
 
-<p>为了解决这个问题，苹果提出了App Slicing，Xcode在创建安装包的时候对针对不同设备的资源和二进制数据进行标记，并创建一个支持不同设备的安装包，提交到AppStore。用户在下载应用的时候，AppStore根据用户的设备类型生成只针对该设备的安装包。这样对用户来说就减少了安装包大小，不需要下载多余的数据。</p>
+    bupo
 
-<p><img src="http://bupojung.github.io/static/appthining" alt="Alt text" /></p>
 
-<p>新版的XCode将会支持App Slicing，开发者可以生成一个通用的安装包，然后导出针对不同特定设备的安装包进行安装包大小比较，同时用针对不同设备的安装包进行测试。</p>
+Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Shashank Mehta</a></footer>
+		</div>
+	</div>
+	
 
-<h3>On Demand Resources（ODR）</h3>
 
-<p>ODR顾名思义，就是在需要的时候去下载资源（包括图片和声音），不是必要的资源不随安装包一起下载，而是在用户使用应用到某个场景的时候才去服务器下载资源。这样的好处是下载应用更快，同时提高第一次启动应用的体验。这些资源由AppStore存储维护。比如，游戏应用可以把根据游戏关卡对资源进行分组，当用户将要进行到下一个关卡的时候才去请求资源。
-Xcode7通过对资源进行分组标记支持ODR，通过使用一个关键字对一组资源进行标记，安装包提交到AppStore后，AppStore会对标记的资源进行分离存储，最终用户下载的安装包将不包含这部分数据。应用通过NSBundleResourceRequest接口下载需要的资源。</p>
 
-<h3>BitCode</h3>
 
-<p>BitCode可以理解为应用程序的中间代码（Bitcode is an intermediate representation of a compiled program.）。提交到AppStore的包会包含Bitcode，AppStore会使用bitcode对应用重新编译生成最终的安装包。这样的好处是如果未来SDK更新了，开发者不需要提交新版本，苹果就能使用bitcode基于新SDK对应用进行重新编译生成支持SDK新特性的安装包。</p>
-]]></content>
-  </entry>
-  
-</feed>
+
+
+
+
+
+
+</body>
+</html>
