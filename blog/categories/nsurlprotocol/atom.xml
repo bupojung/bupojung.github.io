@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: nsurlprotocol | Bupo's Blog]]></title>
+  <link href="http://bupojung.github.io/blog/categories/nsurlprotocol/atom.xml" rel="self"/>
+  <link href="http://bupojung.github.io/"/>
+  <updated>2015-11-30T11:13:44+08:00</updated>
+  <id>http://bupojung.github.io/</id>
+  <author>
+    <name><![CDATA[bupo]]></name>
+    <email><![CDATA[bupo.jung@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[利用NSURLProtocol劫持WebView请求]]></title>
+    <link href="http://bupojung.github.io/blog/2015/11/30/li-yong-nsurlprotocoljie-chi-webviewqing-qiu/"/>
+    <updated>2015-11-30T11:08:36+08:00</updated>
+    <id>http://bupojung.github.io/blog/2015/11/30/li-yong-nsurlprotocoljie-chi-webviewqing-qiu</id>
+    <content type="html"><![CDATA[<h2>利用NSURLProtocol劫持WebView请求</h2>
+
+<h3>背景:</h3>
+
+<blockquote><p>由于很多增值业务使用的是H5页面实现，在开发测试过程中页面不能发布到正式环境，开发、测试以及产品同学需要配置代理或者配host来体验产品，这样测试和体验产品的效率比较低，沟通成本比较高。基于这种情况，我们实现了一套测试环境切换平台，通过在页面上配置url转发规则，终端根据配置信息判断是否将请求转发到代理服务器，代理服务器再根据代理转发规则将请求转发到对应的测试环境，实现测试环境切换自动化，提高测试体验效率。本文介绍iOS终端如何利用NSURLProtocol劫持Webview请求实现请求转发。</p></blockquote>
+
+<h3>NSURLProtocol：</h3>
+
+<p>任何通过NSURLConnection发起的请求都会被NSURLProtocol截获，NSURLProtocol是一个抽象类，我们可以继承它实现自定义的URL加载行为。并将自定义的NSURLProtocol子类注册到NSURLProtocol，每次NSURLConnection发起请求被NSURLProtocol截获后将遍历已注册的子类是否能响应这个请求，响应请求的NSURLProtocol子类将发起请求并处理请求回调，将结果通知到NSURLConnection，所有实际的URL加载过程都是在NSURLProtocol子类完成。系统提供了现成的NSURLProtocol子类有：NSHTTPURLProtocol，NSFTPURLProtocol，NSFileURLProtocol等。具体的交互过程如下图所示：
+<img src="/static/2015/11/30/NSURLProtocol_Sequence_Diagram" alt="NSURLProtoco" /></p>
+
+<blockquote><p>注：NSURLProtocol在遍历子类的过程是反向遍历的，最后注册的子类会先被遍历，这样自定义的子类将能提前截获请求，当一个子类截获请求后，将终止遍历。</p></blockquote>
+
+<p>上图是NSURLConnection发起请求的过程，简化了缓存处理的逻辑。可以看出NSURLProtocol给我们提供了一种截获请求的机制。</p>
+
+<h3>实现:</h3>
+
+<p>继承NSURLProtocol，实现一下几个接口：
+<code>
+//判断是否响应request，返回YES表示这个NSURLProtocol子类将处理这个请求，其他NSURLProtocol将不再处理此请求。
++ (BOOL)canInitWithRequest:(NSURLRequest *)request;
+//返回与参数request对应的一个NSURLRequest对象，返回的对象将用来在Cache中判断两个request是否相等，必须保证同一个request的canonicalRequest相同。一般情况直接返回参数request。
++ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request;
+//比较cache中的两个request是否相等，默认实现是判断两个request的url是否相等，子类可以重写。
++ (BOOL)requestIsCacheEquivalent:(NSURLRequest *)aRequest toRequest:(NSURLRequest *)bRequest;
+//如果canInitWithRequest返回YES，NSURLConnection将调用startLoading加载数据。
+- (void)startLoading;
+//如果canInitWithRequest返回YES，NSURLConnection将调用stopLoading停止加载数据。
+- - (void)stopLoading;
+</code></p>
+
+<h3>实现步骤</h3>
+
+<ul>
+<li>在+ (BOOL)canInitWithRequest:(NSURLRequest *)request 方法中判断请求的URL是否需要转发到测试环境，如果需要转发返回YES，不需要返回NO。</li>
+<li>在- (void)startLoading 方法中重新创建一个Request，替换URL，创建一个新的NSURLConnection发起请求，将请求转发到代理服务器。</li>
+<li>实现NSURLConnectionDelegate，将返回的数据回调给NSURLProtocol的client属性，client属性是一个实现了NSURLProtocolClient接口的对象，在此请求过程中client是第一次发起请求的NSURLConnection对象。</li>
+</ul>
+
+
+<p><img src="/static/2015/11/30/NSURLProtocol_implement" alt="实现步骤" /></p>
+
+<blockquote><p>注意：在第2个步骤中，需要标记新创建的Request对象，由于NSURLConnection发起请求，又会被protocol截获处理，这样可能陷入死循环。所以这里需要给新创建的request标记，在+ (BOOL)canInitWithRequest:(NSURLRequest *)request方法中截获到标记过的request直接返回NO，不处理。
+ 步骤3，需要处理重定向请求，由于新发起的请求被标记过，如果请求被重定向，protocol将不再处理重定向的请求，这样重定向的请求就无法截获。这里的方法是截获重定向请求，将request的标记删除。</p></blockquote>
+
+<h3>源代码</h3>
+
+<pre><code>@interface BPDebugURLProtocol ()
+@property (nonatomic, strong) NSURLConnection *connection;
+
+@end
+
+@implementation BPDebugURLProtocol
++ (BOOL)canInitWithRequest:(NSURLRequest *)request
+{
+
+    BPWebDebugEvnConfig *config = [BPWebDebugEvnConfig shareInstance];
+    if(![config isFromWebView:request])//只处理来自webview的请求
+    {
+        BP_TRACE("debugURLProtocol:%s NotFromWebView return NO",[request.URL.absoluteString UTF8String]);
+        return NO;
+    }
+    //无论是否开启测试环境模式，对代理服务器域名的请求进行转发，不然用户无法访问代理配置页面。
+    if ([config isProxyDomian:request.URL.host]) {
+        BP_TRACE("debugURLProtocol:%s isProxyDomian return YES",[request.URL.absoluteString UTF8String]);
+        return YES;
+    }
+    if ([config isDebugModeOn] &amp;&amp; [NSURLProtocol propertyForKey:kProxyTag inRequest:request] == nil) {
+        NSString *proxyID = [config proxyIDForURL:request.URL.absoluteString];
+        if (proxyID != nil) {
+            BP_TRACE("debugURLProtocol:%s proxyID return YES",[request.URL.absoluteString UTF8String]);
+            return YES;
+        }
+    }
+
+    BP_TRACE("debugURLProtocol:%s return NO",[request.URL.absoluteString UTF8String]);
+    return NO;
+}
+
++ (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
+{
+    return request;
+}
+
+- (void)startLoading
+{
+    BPWebDebugEvnConfig *config = [BPWebDebugEvnConfig shareInstance];
+    NSString *proxyID = [config proxyIDForURL:self.request.URL.absoluteString];
+    BP_TRACE("startLoading:%s,URL:%s",[proxyID UTF8String],[self.request.URL.absoluteString UTF8String]);
+    if (proxyID != nil) {
+        NSMutableURLRequest *newRequest = [self.request mutableCopy];
+        if ([proxyID isEqualToString:DEFAULTPROXYID]) {
+            //不走代理，走url替换
+            NSString *newURL = [config replacedURLForURL:self.request.URL.absoluteString];
+            if (newURL) {
+                [newRequest setURL:[NSURL URLWithString:newURL]];
+                NSDictionary *cookieHeaders = [self cookiesForRequest:self.request];
+                [newRequest setValue: [cookieHeaders objectForKey: @"Cookie" ]forHTTPHeaderField:@"Cookie"];
+            }else
+            {
+                BP_ERROR("replace URL is nil");
+                return;
+            }
+        }else
+        {
+            NSURL *newURL = [self newURLForURL:self.request.URL];
+            NSDictionary *cookieHeaders = [self cookiesForRequest:self.request ];//withProxyURL:newURL];
+            [newRequest setURL:newURL];
+            NSInteger timestamp = (NSInteger)[[NSDate date]timeIntervalSince1970];
+            NSString *md5value = [self MD5WithCookies:[cookieHeaders objectForKey: @"Cookie" ] proxyID:proxyID timestamp:timestamp req:newRequest];
+            NSString *uin = [[serviceFactoryInstance() getAccountService] getUinStr];
+            NSString *value = [NSString stringWithFormat:@"%@,%@,%d,%@,%@",proxyID,[UIDevice deviceIdentifier],timestamp,uin,md5value];
+            [newRequest setValue:value forHTTPHeaderField:kExtensionHeader];
+            [newRequest setValue: [cookieHeaders objectForKey: @"Cookie" ]forHTTPHeaderField:@"Cookie"];
+        }
+
+        [NSURLProtocol setProperty:@YES forKey:kProxyTag inRequest:newRequest];
+        newRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+        self.connection = [NSURLConnection connectionWithRequest:newRequest delegate:self];
+    }
+}
+
+- (void)stopLoading {
+    [self.connection cancel];
+    self.connection = nil;
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    NSString * refererUrl =   connection.originalRequest.allHTTPHeaderFields[@"Referer"];
+    NSString *  finalUrlStr= [[BPWebDebugMainRequestCache shareInstance]finalURLStr];
+    BOOL isShowTips = [[BPWebDebugMainRequestCache shareInstance]isShowTips];
+
+    BPWebViewController * webViewController =[[BPWebDebugMainRequestCache shareInstance] currentWebviewController];
+
+    BOOL isNeedIgnore =[self isNeedIgnoreWithURL:finalUrlStr];
+    //如果不忽略的域名内，则进行检测
+    if (isNeedIgnore ==NO)
+    {
+        // 替换URL走这里
+        BPWebDebugEvnConfig *config = [BPWebDebugEvnConfig shareInstance];
+        NSString *proxyID = [config proxyIDForURL:finalUrlStr];
+        if (proxyID != nil &amp;&amp; isShowTips ==NO)
+        {
+            [self showTipsOnViewController:webViewController];
+        }
+
+        //代理走这里
+        BOOL isEqual  =  [self isFromSource:finalUrlStr subRequestReferer:refererUrl];
+        //原请求url和referer相同，webviewcontroller，finalUrlStr不为空，isShowTips没提示过
+        if (isEqual == YES &amp;&amp;  webViewController!=nil  &amp;&amp; finalUrlStr!=nil &amp;&amp;  isShowTips ==NO)
+        {
+            [self showTipsOnViewController:webViewController];
+        }
+    }
+
+
+    [self.client URLProtocol:self didLoadData:data];
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
+{
+    [self.client URLProtocol:self didFailWithError:error];
+    self.connection = nil;
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
+{
+    NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:[(NSHTTPURLResponse*)response allHeaderFields] forURL:response.URL];
+    NSArray *newCookies = [self cookies:cookies ToDomain:self.request.URL.host];
+    [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookies:newCookies forURL:self.request.URL mainDocumentURL:nil];
+    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];//不缓存
+}
+
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+{
+    [self.client URLProtocolDidFinishLoading:self];
+    self.connection = nil;
+}
+
+- (NSCachedURLResponse *)connection:(NSURLConnection *)connection
+                  willCacheResponse:(NSCachedURLResponse *)cachedResponse
+{
+    return nil;
+}
+
+//302重定向
+- (NSURLRequest *)connection:(NSURLConnection *)connection
+             willSendRequest:(NSURLRequest *)request
+            redirectResponse:(NSURLResponse *)redirectResponse
+{
+    if ([redirectResponse isKindOfClass:[NSHTTPURLResponse class]]) {
+        NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)redirectResponse;
+        if ([httpRes statusCode] == 302) {
+            NSMutableURLRequest *req = [request copy];
+            [NSURLProtocol removePropertyForKey:kProxyTag inRequest:req];
+            request = [req copy];
+            [self.client URLProtocol:self wasRedirectedToRequest:request redirectResponse:redirectResponse];
+        }
+    }
+    return request;
+}
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>
