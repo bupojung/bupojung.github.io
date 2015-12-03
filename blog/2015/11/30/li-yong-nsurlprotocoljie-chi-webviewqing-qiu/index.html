@@ -101,6 +101,9 @@
 
 <blockquote><p>由于很多增值业务使用的是H5页面实现，在开发测试过程中页面不能发布到正式环境，开发、测试以及产品同学需要配置代理或者配host来体验产品，这样测试和体验产品的效率比较低，沟通成本比较高。基于这种情况，我们实现了一套测试环境切换平台，通过在页面上配置url转发规则，终端根据配置信息判断是否将请求转发到代理服务器，代理服务器再根据代理转发规则将请求转发到对应的测试环境，实现测试环境切换自动化，提高测试体验效率。本文介绍iOS终端如何利用NSURLProtocol劫持Webview请求实现请求转发。</p></blockquote>
 
+<!-- more -->
+
+
 <h3>NSURLProtocol：</h3>
 
 <p>任何通过NSURLConnection发起的请求都会被NSURLProtocol截获，NSURLProtocol是一个抽象类，我们可以继承它实现自定义的URL加载行为。并将自定义的NSURLProtocol子类注册到NSURLProtocol，每次NSURLConnection发起请求被NSURLProtocol截获后将遍历已注册的子类是否能响应这个请求，响应请求的NSURLProtocol子类将发起请求并处理请求回调，将结果通知到NSURLConnection，所有实际的URL加载过程都是在NSURLProtocol子类完成。系统提供了现成的NSURLProtocol子类有：NSHTTPURLProtocol，NSFTPURLProtocol，NSFileURLProtocol等。具体的交互过程如下图所示：

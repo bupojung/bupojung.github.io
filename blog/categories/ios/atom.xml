@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ios, | Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2015-12-03T22:40:55+08:00</updated>
+  <updated>2015-12-03T22:57:42+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -23,6 +23,9 @@
 <h3>背景:</h3>
 
 <blockquote><p>由于很多增值业务使用的是H5页面实现，在开发测试过程中页面不能发布到正式环境，开发、测试以及产品同学需要配置代理或者配host来体验产品，这样测试和体验产品的效率比较低，沟通成本比较高。基于这种情况，我们实现了一套测试环境切换平台，通过在页面上配置url转发规则，终端根据配置信息判断是否将请求转发到代理服务器，代理服务器再根据代理转发规则将请求转发到对应的测试环境，实现测试环境切换自动化，提高测试体验效率。本文介绍iOS终端如何利用NSURLProtocol劫持Webview请求实现请求转发。</p></blockquote>
+
+<!-- more -->
+
 
 <h3>NSURLProtocol：</h3>
 
