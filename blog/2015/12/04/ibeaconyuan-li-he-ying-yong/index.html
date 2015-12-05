@@ -1,0 +1,412 @@
+
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>iBeacon原理和应用 - Bupo's Blog</title>
+	<meta name="author" content="bupo">
+
+	
+	<meta name="description" content="iBeacon原理和应用 简介 iBeacon是苹果在iOS 7.0 引入的一项新的位置感知特性，其工作方式是，配备有 低功耗蓝牙（Bluetooth Low Energy ，BLE）通信功能的设备使用BLE技术向周围发送自己特有的ID，接收到该ID的应用软件会根据接收到的ID和信号源产生互动。 &hellip;">
+	
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Bupo's Blog" type="application/atom+xml">
+	
+	<link rel="canonical" href="http://bupojung.github.io/blog/2015/12/04/ibeaconyuan-li-he-ying-yong/">
+	<link href="/favicon.png" rel="shortcut icon">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link href='http://fonts.googleapis.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+	<script src="//libs.baidu.com/jquery/1.7.2/jquery.min.js"></script>
+	
+  
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-52212353-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+
+
+</head>
+
+
+<body>
+	<div class="container">
+		<div class="left-col">
+			<div class="intrude-less">
+			<header id="header" class="inner"><div class="profilepic">
+	
+	<script src="/javascripts/md5.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$('.profilepic').append("<img src='http://www.gravatar.com/avatar/" + MD5("bupo.jung@gmail.com") + "?s=160' alt='Profile Picture' style='width: 160px;' />");
+		});
+	</script>
+	
+</div>
+
+<nav id="main-nav"><ul class="main-navigation"> <li><a href="/">Blog</a></li> <li><a href="/blog/archives">Archives</a></li> <li><a href="/about">About Me</a></li> </ul>
+</nav>
+<nav id="sub-nav">
+	<div class="social">
+		
+			<a class="email" href="mailto:bupo.jung@gmail.com" title="Email">Email</a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    	
+    	
+			<a class="rss" href="/atom.xml" title="RSS">RSS</a>
+		
+	</div>
+</nav>
+</header>				
+			</div>
+		</div>	
+		<div class="mid-col">
+			
+				
+			
+			<div class="mid-col-container">
+				<div id="content" class="inner"><article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+	<h1 class="title" itemprop="name">iBeacon原理和应用</h1>
+	<div class="entry-content" itemprop="articleBody"><p><img src="/static/2015/12/05/ibeaconLogo" alt="Alt text" /></p>
+
+<h2>简介</h2>
+
+<blockquote><p>iBeacon是苹果在iOS 7.0 引入的一项新的位置感知特性，其工作方式是，配备有 低功耗蓝牙（<strong>Bluetooth Low Energy </strong>，BLE）通信功能的设备使用BLE技术向周围发送自己特有的ID，接收到该ID的应用软件会根据接收到的ID和信号源产生互动。不同功率的BLE设备的信号范围在10m~100m不等，当手机进入信号范围时，能接收到信号源广播的ID（UUID+Major+Minor）, App通过解析接收到的ID向用户推送通知或者其他资讯。</p></blockquote>
+
+<!-- more -->
+
+
+<h2>原理</h2>
+
+<h4>BLE</h4>
+
+<p>Bluetooth Low Energy（BLE）是2010年发布的蓝牙4.0技术规范的一部分。BLE最重要的特点当然在于它的低能耗。传统蓝牙和LE蓝牙使用的都是相同的波段（2.4GHz-2.4835GHz）。BLE协议的传输速率比较低，因此除了用于发现设备和做一些简单通信之外，不太适合用于传输大量的数据流。在协议条款上，LE和传统蓝牙的信号都能够覆盖到100米的范围。</p>
+
+<h4>iBeacon广播信息UUID+Major+Minor</h4>
+
+<p>每个iBeacon设备都有一个唯一ID(UUID+Major+Minor)，在一个区域内广播信号，通过信号中的ID信息标记一个特定区域。
+| Filed     |    size | Description  |
+| :&mdash;&mdash;&ndash; | &mdash;&mdash;&ndash;:| :&ndash;: |
+| UUID      |  16 bytes|  用于将你的iBeacon和别的iBeacon区别的唯一标识   |
+| Major     |   2 bytes|  用于将相关的iBeacon标记为一组  |
+| Minor     |   2 bytes|  标记特定的一个iBeacon  |
+举个例子，如果你有一家全国连锁百货公司，你可以在你的店里部署iBeacon，当用户进入iBeacon范围内的时候提供一定的优惠资讯，那么你所有的 iBeacon 发射器都可有同一个 UUID ，但每个店都有它自己的Major值，而里面的每个部门就会有它自己的Minor值。如下表所示：
+<img src="/static/2015/12/05/ibeaconUUID" alt="Alt text" /></p>
+
+<h2>应用</h2>
+
+<blockquote><p>iBeacon作为一种位置感知技术，现有的应用主要有两个方面：1. 通过检测是否进入iBeacon区域向用户进行消息推送；2. 通过利用信号强度以及部署的基站信息进行室内定位。</p>
+
+<h4>利用 iBeacon 进行消息推送</h4>
+
+<p>苹果在iOS 7 及以上为iBeacon提供了系统级的支持，如果在iOS App中监听了某一个特定的iBeacon，当用户持手机进入该iBeacon信号范围内时，应用会被唤醒。我们所说的利用iBeacon进行消息推送，其实是需要App配合的。</p></blockquote>
+
+<p><strong>目前推送的实现逻辑有几种：</strong></p>
+
+<ul>
+<li><p>用户进入 iBeacon 覆盖范围 －> 应用被唤醒 －> 应用请求云端数据 －> 应用发送 Local Notification 向用户推送内容。</p>
+
+<blockquote><p>优点:推送内容实时性，自定义程度高
+缺点:网络条件要求高</p></blockquote></li>
+<li><p>用户进入 iBeacon 覆盖范围 －> 应用被唤醒 －> 应用查看本地缓存推送内容 －> 应用发送 Local Notification 向用户推送内容。</p>
+
+<blockquote><p>优点: 不需要网络
+缺点:推送内容实时性较差</p></blockquote></li>
+<li><p>用户进入 iBeacon 覆盖范围 －> 打开应用－> 应用主动搜索周边的iBeacon信号－> 根据收到的iBeacon向用户托送信息。</p>
+
+<blockquote><p>优点：可以对多个iBeacon进行处理
+缺点: 需要主动触发</p>
+
+<h4>室内定位</h4>
+
+<p>iBeacon 的信号强度采用 RSSI（Received Signal Strength Indication接收的信号强度指示） 值表示。与其他无线信号一样,随着距离的远近, RSSI 值会产生 变化。我么可以通过 RSSI 值的变化来判断用户距离 iBeacon 设备的远近。而设备距离 iBeacon 的距离,在 iOS SDK 中可直接通过 iBeacon 对应的 Accuracy 值读出,单位为米。</p></blockquote></li>
+</ul>
+
+
+<p>但由于信号的波动,以及物理空间复杂的环境因素。iBeacon 的距离测算并不是十分精准,所 以 Apple 定义了四种范围值:</p>
+
+<ul>
+<li>Immediate 很近，小于1米。</li>
+<li>Near 附近,约1⽶-3米。</li>
+<li>Far 较远。</li>
+<li>Unknown 未知，⼀般出现在启动阶段，或者因为某些原因⽆无法判断。
+这里的Far，设备不一定距离iBeacon真的很远，很可能距离iBeacon很近（比如1米），但是没有足够的信息证明设备距离iBeacon很近。所以Far只是表示一个范围，设备可能在范围内的任一点。
+<img src="/static/2015/12/05/ibeaconPhone" alt="enter image description here" /></li>
+</ul>
+
+
+<blockquote><p><strong>Tips</strong>：iBeacon是一种位置感知技术，要用于定位需要知道iBeacon基站的物理位置部署信息，并通过复杂的算法计算用户位置。</p></blockquote>
+
+<p><strong>定位方案</strong>
+* 单点定位
+    当时别到有在near（1m内）范围内的iBeacon基站时就是用该基站的位置坐标作为用户当前坐标。可以通过部署密集的iBeacon设备达到较高的定位精度。比如在博物馆内不同展区部署iBeacon达到室内定位的作用。
+* 两点定位
+根据两点确定一条双曲线的原理，通过计算识别到的两个ibeacon设备的RSSI信号计算用户的位置。一般适合在相对狭长的的物理空间内定位，通过物理空间的局限，配合RSSI值计算可以达到较好的定位效果。
+* 多点定位
+和两点定位类似，通过RSSI值计算到三个iBeacon设备的距离，计算用户位置。此种方式算法比较复杂，适合在空旷的场所部署。</p>
+
+<h3>iOS API使用</h3>
+
+<p><strong>iOS系统提供两种处理iBeacon的能力：</strong>
+*  Beacon区域的监控
+*  估算到iBeacon的距离</p>
+
+<h4>区域监控</h4>
+
+<p>iOS把对iBeacon的支持集成在CoreLocation框架下，使用CLLocationManager类检测iBeacon信号，CLBeaconRegion描述一个iBeacon基站区域。</p>
+
+<p><img src="/static/2015/12/05/ibeaconClass" alt="enter image description here" /></p>
+
+<h5>sampleCode: 检测一个Region</h5>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="c1">//定位权限申请</span>
+</span><span class='line'><span class="n">CLAuthorizationStatus</span> <span class="n">stat</span> <span class="o">=</span> <span class="p">[</span><span class="bp">CLLocationManager</span> <span class="n">authorizationStatus</span><span class="p">]</span> <span class="p">;</span>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">stat</span> <span class="o">==</span> <span class="n">kCLAuthorizationStatusDenied</span> <span class="o">||</span> <span class="n">stat</span> <span class="o">==</span> <span class="n">kCLAuthorizationStatusRestricted</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;not allowed!&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">stat</span> <span class="o">==</span> <span class="n">kCLAuthorizationStatusNotDetermined</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">locationManager</span> <span class="n">requestAlwaysAuthorization</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//创建一个beaconRegion</span>
+</span><span class='line'><span class="bp">NSUUID</span> <span class="o">*</span><span class="n">uuid</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">NSUUID</span> <span class="n">alloc</span><span class="p">]</span><span class="nl">initWithUUIDString</span><span class="p">:</span><span class="s">@&quot;74278BDA-B644-4520-8F0C-720EAF059935&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">region</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">CLBeaconRegion</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithProximityUUID</span><span class="p">:</span><span class="n">uuid</span> <span class="nl">identifier</span><span class="p">:</span><span class="n">BeaconIdentifier</span><span class="p">];</span>
+</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">region</span><span class="p">.</span><span class="n">notifyEntryStateOnDisplay</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">region</span><span class="p">.</span><span class="n">notifyOnEntry</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">region</span><span class="p">.</span><span class="n">notifyOnExit</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+</span><span class='line'><span class="c1">//开始监控</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">locationManager</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">CLLocationManager</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">locationManager</span><span class="p">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="nb">self</span><span class="p">;</span>
+</span><span class='line'><span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">locationManager</span> <span class="nl">startMonitoringForRegion</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">region</span><span class="p">];</span>
+</span><span class='line'><span class="k">if</span> <span class="p">([</span><span class="bp">CLLocationManager</span> <span class="n">isRangingAvailable</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">locationManager</span> <span class="nl">startRangingBeaconsInRegion</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">region</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果启动成功，locationmanager会开始回调region的状态，调用时机通过<strong>CLBeaconRegion对象的参数设置</strong>：</p>
+
+<blockquote><ul>
+<li>notifyEntryStateOnDisplay:当手机屏幕亮着的时候，如果用户在监控区域内会收到回调；</li>
+<li>notifyOnExit：离开region收到回调；</li>
+<li>notifyOnEntry：进入region收到回调；</li>
+</ul>
+</blockquote>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">locationManager:</span><span class="p">(</span><span class="bp">CLLocationManager</span> <span class="o">*</span><span class="p">)</span><span class="nv">manager</span> <span class="nf">didDetermineState:</span><span class="p">(</span><span class="n">CLRegionState</span><span class="p">)</span><span class="nv">state</span> <span class="nf">forRegion:</span><span class="p">(</span><span class="bp">CLRegion</span> <span class="o">*</span><span class="p">)</span><span class="nv">region</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>检测iBeacon距离（Ranging Beacons）</h4>
+
+<p>当用户进入iBeacon区域后，设备可以获得更高精度的信号采样，从而可以检查在区域内的iBeacon设备信号强度和估算距离。iOS API提供了如下几个接口处理CLBeaconRegion内的iBeacon设备距离的检测：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">startRangingBeaconsInRegion:</span><span class="p">(</span><span class="bp">CLBeaconRegion</span> <span class="o">*</span><span class="p">)</span><span class="nv">region</span><span class="err">；</span>
+</span><span class='line'><span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nl">stopRangingBeaconsInRegion</span><span class="p">:(</span><span class="bp">CLBeaconRegion</span> <span class="o">*</span><span class="p">)</span><span class="n">region</span><span class="err">；</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>推荐在接收到 CLLocationManager:didDetermineState: callback回调并确定进入某个区域后，调用startRangingBeaconInRegion:检测区域内的iBeacon距离，当用户收到离开该区域后调用stopRangingBeaconInRegion：。
+调用startRangingBeaconsInRegion:后，系统会定时回调以下方法：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">locationManager:</span><span class="p">(</span><span class="bp">CLLocationManager</span> <span class="o">*</span><span class="p">)</span><span class="nv">manager</span> <span class="nf">didRangeBeacons:</span><span class="p">(</span><span class="bp">NSArray</span> <span class="o">*</span><span class="p">)</span><span class="nv">beacons</span> <span class="nf">inRegion:</span><span class="p">(</span><span class="bp">CLBeaconRegion</span> <span class="o">*</span><span class="p">)</span><span class="nv">region</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>其中beacons参数是在该区域内检测到得iBeacon设备信息列表，我们可以从中得到区域内多个iBeacon设备的信息。
+<img src="/static/2015/12/05/CLBeaconClass" alt="enter image description here" /></p>
+
+<blockquote><ul>
+<li>proximity：初略估算iBeacon的距离，有几种状态，CLProximityUnknown, CLProximityImmediate, CLProximityNear, 和 CLProximityFar；</li>
+<li>accuracy：估算距离，单位m；</li>
+<li>rssi：信号强度；</li>
+</ul>
+</blockquote>
+
+<p><img src="/static/2015/12/05/range" alt="enter image description here" /></p>
+
+<h4>问题</h4>
+
+<ul>
+<li><p>如何监控多个Region？
+可以监控多个Region，每个region的identifier属性不能一样，如果一样会覆盖掉相同属性的Region，通过调用 tartRangingBeaconsInRegion:注册监听的Region。</p></li>
+<li><p>能否监控未提前知道UUID的iBeacon设备？
+  iOS没有公开的API支持这个功能，监控iBeacon区域需要先知道UUID。MacOSX可以通过解析蓝牙广播报文获得iBeacon UUID+Major+Minor.iOS不支持。</p>
+
+<h2>有趣的应用场景</h2></li>
+<li>天气助手
+<img src="/static/2015/12/05/ex1" alt="enter image description here" />
+你是否遇到过忘记看天气预报下雨出门没带雨伞？或者看了天气预报，匆匆出门还是忘带了。日本一家公司推出了一个基于iBeacon的使用工具，可以让你轻松甩掉这个烦恼。只需要下载这个APP,并且购买一个iBeacon小装置放在门口，当每天出门时不用打开APP,如果要下雨APP会自动弹出提醒你带好雨伞！</li>
+<li><p>追踪行李的小应用
+<img src="/static/2015/12/05/ex2" alt="enter image description here" />
+等行李所有人都有过痛苦的经历，伸长脖子盯着自己的行李是否出来了。通过在行李箱防止iBeacon，当行李箱接近是弹出提醒，有了这个iBeacon应用，可以轻松的坐在边上等着，手机会自动感应行李的到来</p></li>
+<li><p>意大利动物园部署iBeacon互动导览
+<img src="/static/2015/12/05/ex3" alt="enter image description here" />
+就可以用手机根据游览位置解锁相应导览介绍和获得游览奖励了，这完全基于iBeacon技术，它被安装爱金16万平米的园区里，可以为整个游览过程带来寓教于乐的新奇体验。APP提供了一张可以与游览者互动的电子地图，不但起到导览，而且可以在有特色的重点区域给予自动提示。</p></li>
+<li><p>iBeacon还可以帮助咖啡馆这样运营
+美国的一家创业公司专门针对咖啡馆推出了一款APP,通过安装在咖啡馆里的iBeacon基站提供订位，计时长和自动付款服务。很多咖啡馆会遇到来坐着不消费又蹭网的问题，这个APP建议咖啡馆干脆退出类似场地租用的服务，通过所待时长收取一定费用，消费者可以通过APP远程预定座位，收取一定数额定金，当走入咖啡馆时通过iBeacon自动感应签到提示并开始计时，离开时自动计算所待时长和从关联的信用卡扣除相应费用。</p></li>
+<li><p>博物馆，shopping mall</p>
+
+<h4>支持iBeacon的手机</h4>
+
+<p>运行 iOS7 以上版本的手机，包括：</p></li>
+<li>iPhone 4S 及以上；</li>
+<li>iPad 2 及以上；</li>
+<li>iPod 5；</li>
+</ul>
+
+
+<p>运行 Android 4.3 以上，支持蓝牙 4.0 的安卓设备，常见设备有：</p>
+
+<ul>
+<li>三星 Galaxy 系列；</li>
+<li>华为荣耀3C及以上；</li>
+<li>小米 2S 及以上；</li>
+</ul>
+
+
+<p><strong>借鉴微信的接入流程：</strong></p>
+
+<p><img src="/static/2015/12/05/wechat" alt="enter image description here" /></p>
+
+<p>如上图，实现分如下四个步骤：
+       第一步. 服务提供者向微信后台申请服务，微信后台生成一个IBeaconId,并将其映射到服务提供者提供的服务，再将IBeaconId告诉服务提供者;
+       第二步. 服务提供者把第一步拿到的IBeaconId设置到IBeacon设备上，让IBeacon设备广播该IBeaconId;
+       第三步. 用户在该IBeacon设备的信号范围内打开微信摇一摇周边，微信App拿到该IBeaconId;
+       第四步. 微信通过第三步拿到的IBeaconId，向微信后台拉取相应的服务，展示在摇出来的结果上。
+       第五步. 用户点击摇出来结果，在微信内嵌的浏览器上，会带上用户信息跳转到服务提供者在第一步申请服务时填的url，进入应用页面</p>
+
+<h2>总结</h2>
+
+<p>iBeacon可能是一个在较长时间被低估了的技术，尤其在对O2O线下消费的体验丰满与提升方面，不过这种状况可能随着一些巨头的尝试性介入而得到改变。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://djt.qq.com/article/view/1284">微信摇一摇周边</a></li>
+<li><a href="http://blog.sensoro.com/ibeacon-ding-wei-shi-jian/">iBeacon定位实践</a></li>
+<li><a href="http://developer.radiusnetworks.com/2013/11/13/ibeacon-monitoring-in-the-background-and-foreground.html">Beacon Monitoring in the Background and Foreground</a></li>
+<li><a href="http://beekn.net/2013/10/ibeacons-can-my-ios-app-find-beacons-that-arent-mine/">iBeacons: Can My iOS App Find Beacons That Aren’t Mine?</a></li>
+</ul>
+
+</div>
+
+</article>
+
+	<div class="share">
+	
+     	<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js"></script>
+<!-- UY END -->
+
+
+ 	
+</div>
+
+
+</div>
+			</div>
+			<footer id="footer" class="inner">Copyright &copy; 2015
+
+    bupo
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?f4c0316ff82024cf791a94d61c3f127b";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+Design credit: <a href="http://shashankmehta.in/archive/2012/greyshade.html">Shashank Mehta</a></footer>
+		</div>
+	</div>
+	<!-- 
+
+ -->
+<!-- 
+ -->
+<!-- 
+ -->
+<!-- 
+ -->
+
+
+</body>
+</html>

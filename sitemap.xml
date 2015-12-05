@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://bupojung.github.io/blog/2015/12/04/ibeaconyuan-li-he-ying-yong/</loc>
+    <lastmod>2015-12-04T17:01:05+08:00</lastmod>
+  </url>
+  <url>
     <loc>http://bupojung.github.io/blog/2015/11/30/li-yong-nsurlprotocoljie-chi-webviewqing-qiu/</loc>
     <lastmod>2015-11-30T11:08:36+08:00</lastmod>
   </url>
@@ -28,5 +32,11 @@
   </url>
   <url>
     <loc>http://bupojung.github.io/blog/categories/nsurlprotocol/</loc>
+  </url>
+  <url>
+    <loc>http://bupojung.github.io/blog/categories/ibeacon/</loc>
+  </url>
+  <url>
+    <loc>http://bupojung.github.io/blog/categories/ios/</loc>
   </url>
 </urlset>

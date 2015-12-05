@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: ios | Bupo's Blog]]></title>
-  <link href="http://bupojung.github.io/blog/categories/ios/atom.xml" rel="self"/>
+  <title><![CDATA[Category: ibeacon, | Bupo's Blog]]></title>
+  <link href="http://bupojung.github.io/blog/categories/ibeacon/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
   <updated>2015-12-05T11:31:50+08:00</updated>
   <id>http://bupojung.github.io/</id>
