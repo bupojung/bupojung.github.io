@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: voiceover, | Bupo's Blog]]></title>
+  <link href="http://bupojung.github.io/blog/categories/voiceover/atom.xml" rel="self"/>
+  <link href="http://bupojung.github.io/"/>
+  <updated>2015-12-28T23:34:52+08:00</updated>
+  <id>http://bupojung.github.io/</id>
+  <author>
+    <name><![CDATA[bupo]]></name>
+    <email><![CDATA[bupo.jung@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[iOS无障碍支持总结——VoiceOver]]></title>
+    <link href="http://bupojung.github.io/blog/2015/12/28/ioswu-zhang-ai-zhi-chi-zong-jie-voiceover/"/>
+    <updated>2015-12-28T23:08:23+08:00</updated>
+    <id>http://bupojung.github.io/blog/2015/12/28/ioswu-zhang-ai-zhi-chi-zong-jie-voiceover</id>
+    <content type="html"><![CDATA[<p>最近参加的一个项目需要完全支持无障碍，在iOS中既为VoiceOver,用于支持视觉有障碍的人士使用iOS上的移动应用，提供语音反馈实现无障碍的操作体验。在iOS中使用UIAccessibility API支持VoiceOver。 在支持无障碍体验的开发中涉及到几种情况：</p>
+
+<ul>
+<li>标准控件（StandardControls）即UIButton、UITableView、UISegmentedControld等；</li>
+<li>UIView和继承自UIView的自定义控件;</li>
+<li>除去前面两种情况的需要相应VoiceOver的界面区域，比如通过绘制在UIView上的图形，或者文字区域，既不是标准控件也不是UIView。</li>
+</ul>
+
+
+<!-- more -->
+
+
+<p>下面分几种情况介绍：</p>
+
+<h5>1. 标准控件：</h5>
+
+<p>标准控件默认支持VoiceOver,不需要做太多的设置，只需要通过UIAccessibility接口设置对应的属性就可以达到大部分的无障碍支持需求，用的比较多的属性有：
+accessibilityLabel:此属性用于描述控件的功能或内容，当用户触摸到控件区域，就会播放相应的描述内 容；
+accessibilityHint:用于描述控件激活后的动作，一般是一个动词开头的短语，例如：对于UIButton，当用户双击时将播放此属性的描述内容；
+accessibilityElementsHidden:是一个BOOL属性，用于隐藏控件，使控件不响应VoiceOver触摸，设置控件的hidden属性只能隐藏控件的可视区域，但是对VoiceOver是无效的，如果要使控件不响应VoiceOver，将此属性设置为YES. accessibilityTraits:UIAccessibilityTraits,用于描述控件的特性，是一个组合属性，即可以通过多个UIAccessibilityTraits或操作组合属性。对于标准控件，都有其默认值描述对应控件的特征，而自定义控件的默认值为UIAccessibilityTraitNone，举个例子，UIButton该属性默认值为UIAccessibilityTraitButton,当用户触摸时将会播放accessibilityLabel的描述内容+“按钮”，如果按钮被disable,则应该像如下设置此属性：</p>
+
+<pre><code class="objectivec">btn. accessibilityTraits = UIAccessibilityTraitButton  |  UIAccessibilityTraitNotEnabled
+</code></pre>
+
+<p>当触摸到该按钮是将播放“xxx按钮，变灰”。 另一个例子，比如一个UILabel显示秒表，将每秒更新label显示的内容，则可以如下设置其traits：
+<code>objectivec
+label.accessibilityTraits = UIAccessibilityTraitUpdatesFrequently;
+</code></p>
+
+<p>这样当lable处于选中状态时，如果更新accessibilityLabel,系统将定时播放label内容。 以上是UIKit标准控件进行无障碍支持时常用到的一些属性，这些属性在自定控件中也同样可用。</p>
+
+<h5>2. 自定义控件（UIView or SubClass of UIView）:</h5>
+
+<p>默认情况下自定义控件是不支持VoiceOver的。可以通过两种方式使其支持VoiceOver： 1）实现isAccessibilityElement协议，在UIView子类中实现此协议返回YES；
+2）直接设置isAccessibilityElement属性，将其设置为YES； 自定义其他属性和标准控件一样，就不需赘述，以下说说需要注意的几点：
+1）.父View如果设置isAccessibilityElement为YES,则其子View将都不能相应VoiceOver,如果如果需要两个View都支持VoiceOver,只能改变他们的层次结构，并都设置为isAccessibilityElement.
+2）.如果想让一个view独占响应voiceover,可以将isAccessibilityViewIsModel设置为YES,则其siblings 将忽略VoiceOver事件。
+3).在某些情况下,希望控件在VoiceOver模式下直接处理touch事件,比如,画图功能,画布需要处理触摸事件,而在voiceOver开启的情况下,touch事件会被block,这时就需要设置画布的accessibilityTraits:
+<code>objectivec
+paintCanvas.accessibilityTraits |= UIAccessibilityTraitAllowsDirectInteraction;
+</code></p>
+
+<h5>3. 其他情况：</h5>
+
+<p>在自定义view中有时包含了一些非标准控件也非UIView子类的可触摸UI原素,比如通过draw方法画出来的区域,则以上的两种情况都不能实现无障碍体验,这种情况下,则需要实现UIAccessibilityContainer Protocol来实现.UIAccessibilityContainer Protocol是非正式协议,只需要实现以下接口:
+1)定义一个NSMutableArray属性,用于保存所有的accessible Elements. @property(nonatomic, strong) NSMutableArray *accessibleElements;
+2)- (NSInteger)accessibilityElementCount方法,返回Element个数;
+3)- (id)accessibilityElementAtIndex:(NSInteger)index;返回对应index下的UIAccessibilityElement;
+4)实现- (bool)isAccessibilityElement;返回NO,正如之前提到,父View如果为AccessibilityElement,子element将不响应voiceover,所以这里要返回NO; 在生成每个区域的UIAccessibleElement需要定义element关联的frame,,其它的和标准控件一致,举例子:</p>
+
+<pre><code class="objectivec">CGRect frame = [self convertRect:self.accessibilityFramefromView:nil];
+UIAccessibilityElement *counterElement = [[UIAccessibilityElement alloc]
+CGRect textFrame = CGRectInset(frame, UYLCOUNTERVIEW_MARGIN +
+self.startButton.bounds.size.width +
+UYLCOUNTERVIEW_MARGIN,
+UYLCOUNTERVIEW_MARGIN);
+counterElement.accessibilityFrame = [self convertRect:textFrame toView:nil];
+counterElement.accessibilityLabel = NSLocalizedString(@"Duration", nil);
+counterElement.accessibilityValue = [[NSNumber
+numberWithInteger:self.secondsCounter]
+stringValueAsTime];
+counterElement.accessibilityTraits = UIAccessibilityTraitUpdatesFrequently;
+[_accessibleElements addObject:counterElement];
+</code></pre>
+
+<p>在界面发生变化时要更新accessibilityElement对应的frame.</p>
+
+<h5>4. 通知：</h5>
+
+<p>1）在进入界面是将VoiceOver焦点定位到特定控件。可以使用UIAccessibilityPostNotification发送通知给特定控件，改变voiceOver焦点：（ call UIAccessibilityPostNotification using both the notification UIAccessibilityScreenChangedNotification (which tells VoiceOver that the contents of the screen has changed) and the element you’d like to give focus to)
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">@implementation</span> <span class="nc">MyViewController</span>
+</span><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidAppear:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nv">animated</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">[</span><span class="nb">super</span> <span class="nl">viewDidAppear</span><span class="p">:</span><span class="n">animated</span><span class="p">];</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">UIAccessibilityPostNotification</span><span class="p">(</span><span class="n">UIAccessibilityScreenChangedNotification</span><span class="p">,</span>
+</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">myFirstElement</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>2）直接播放一段语音。
+<code>objectivec
+UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, @"something to read aloud");
+</code></p>
+
+<h5>参考:</h5>
+
+<p>[1] voiceover-accessibility
+[2] voiceover官方文档:AccessibilityfromtheViewControllersPerspective
+[3] voiceover introduction</p>
+]]></content>
+  </entry>
+  
+</feed>
