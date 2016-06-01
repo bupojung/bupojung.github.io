@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: javascript,native | Bupo's Blog]]></title>
+  <link href="http://bupojung.github.io/blog/categories/javascript-native/atom.xml" rel="self"/>
+  <link href="http://bupojung.github.io/"/>
+  <updated>2016-06-01T20:26:38+08:00</updated>
+  <id>http://bupojung.github.io/</id>
+  <author>
+    <name><![CDATA[bupo]]></name>
+    <email><![CDATA[bupo.jung@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Javascript原生交互解决方]]></title>
+    <link href="http://bupojung.github.io/blog/2016/06/01/javascriptyuan-sheng-jiao-hu-jie-jue-fang/"/>
+    <updated>2016-06-01T20:13:42+08:00</updated>
+    <id>http://bupojung.github.io/blog/2016/06/01/javascriptyuan-sheng-jiao-hu-jie-jue-fang</id>
+    <content type="html"><![CDATA[<h3>Javascript原生交互解决方案</h3>
+
+<p>@(学习)[objecitve-c, javascript,native]
+by bupo.</p>
+
+<h4>简介</h4>
+
+<p>在终端应用开发过程中经常需要在H5页面中调用原生接口来使用原生服务，所以就有了Javascript与原生代码交互的需求，这里终结一下以前在项目中使用的一种解决方案。
+原理很简单，通过在UIWebView的代理中截获window.location.href 跳转请求来响应Javascript请求，并通过UIWebview 提供的执行JS代码的接口stringByEvaluatingJavaScriptFromString 将原始执行结果回调给H5页面。</p>
+
+<!-- more -->
+
+
+<h4>具体实施</h4>
+
+<p>首先终端和H5确定好调用协议，这里以获取经纬度为例</p>
+
+<pre><code>jsbridge://getLocation/callback=xx#seq
+</code></pre>
+
+<p>其中jsbridge是我们自定义的一个协议名，用来区分是调用原生接口的请求还是网络请求，getLocation是接口名称，"/&ldquo;和“#”之前是参数对，多个参数用&amp;链接，“#”后的seq是调用回调函数的时候传回给JS代码的序列号，用于在多次调用时区分是那一次调用，如果不需要回调给JS可以不传。
+下面是H5代码示例，页面中有一个按钮，点击按钮发起原生调用请求。</p>
+
+<pre><code class="html">
+&lt;!doctype html public "-//w3c//dtd html 4.0 transitional//en"&gt;
+&lt;html&gt;
+&lt;head&gt;
+ &lt;title&gt; JS原生交互示例 &lt;/title&gt;
+ &lt;meta charset="utf-8"&gt;
+ &lt;meta name="generator" content="editplus"&gt;
+ &lt;meta name="author" content=""&gt;
+ &lt;meta name="keywords" content=""&gt;
+ &lt;meta name="description" content=""&gt;
+ &lt;script language="javascript" type="text/javascript"&gt;
+
+function call_getLocation(){
+    window.location.href="jsbridge://getLocation/callback=showData#1"
+}
+function showData(s,info){
+    alert(JSON.stringify(info));
+}
+ &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;input type="button" onclick="call_getLocation()" value="location"/&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>在UIWebviewController的代理中捕获请求，判断是原生请求并调用相应接口。代码如下：
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nf">webView:</span><span class="p">(</span><span class="bp">UIWebView</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">webView</span> <span class="nf">shouldStartLoadWithRequest:</span><span class="p">(</span><span class="bp">NSURLRequest</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">request</span> <span class="nf">navigationType:</span><span class="p">(</span><span class="n">UIWebViewNavigationType</span><span class="p">)</span><span class="nv">navigationType</span> <span class="p">{</span>
+</span><span class='line'>    <span class="bp">NSURL</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">requestURL</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">URL</span><span class="p">;</span>
+</span><span class='line'>    <span class="bp">NSString</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">urlString</span> <span class="o">=</span> <span class="p">[</span><span class="n">requestURL</span> <span class="n">absoluteString</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">BOOL</span> <span class="n">shouldStartLoad</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">if</span> <span class="p">([</span><span class="n">urlString</span> <span class="nl">hasPrefix</span><span class="p">:</span><span class="s">@&quot;jsbridge://&quot;</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="nb">self</span> <span class="nl">decodeCMDandParams</span><span class="p">:[</span><span class="n">urlString</span> <span class="nl">substringFromIndex</span><span class="p">:</span><span class="n">kJSBridgePre</span><span class="p">.</span><span class="n">length</span><span class="p">]];</span>
+</span><span class='line'>    <span class="n">shouldStartLoad</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span> <span class="n">shouldStartLoad</span><span class="p">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></p>
+
+<p>decodeCMDandParams 方法解析出接口名和参数，利用OC runtime特性执行对应原生代码。</p>
+
+<pre><code>- (void)decodeCMDandParams:(NSString *)cmdAndParams
+{
+    QBLogDebug(@"request cmd and params:%@",cmdAndParams);
+    NSArray *data = [cmdAndParams componentsSeparatedByString:@"/"];
+    NSString *cmd = [data firstObject];
+    NSDictionary *params = nil;
+    if ([data count] &gt; 1) {
+        params = [self parseParams:data[1]];
+    }
+
+    [self invokeWithCMD:cmd andParams:params];
+}
+
+- (void)invokeWithCMD:(NSString *)cmd andParams:(NSDictionary *)params
+{
+    if (cmd == nil || cmd.length == 0) {
+        return;
+    }
+    SEL selector = NSSelectorFromString([NSString stringWithFormat:@"Test_%@:",cmd]);
+    if ([self respondsToSelector:selector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [self performSelector:selector withObject:params];
+#pragma clang diagnostic pop
+
+    }
+}
+</code></pre>
+
+<p>这样只需要和前端定好交互协议，并实现对应的原生接口就可以完成JS调用原生接口的功能。
+接下来是将原生接口的执行结果回调给JS代码，这个比较简单，通过在参数中解析得到callback参数，将结果拼接成JS代码调用stringByEvaluatingJavaScriptFromString方法就行了。具体代码：
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">excuteCallback:</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">callback</span> <span class="nf">argments:</span><span class="p">(</span><span class="bp">NSDictionary</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="nv">dic</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">callback</span> <span class="o">==</span> <span class="nb">nil</span> <span class="o">||</span> <span class="n">callback</span><span class="p">.</span><span class="n">length</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">=</span> <span class="mi">0</span><span class="p">){</span>
+</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">dic</span><span class="p">)</span> <span class="n">dic</span> <span class="o">=</span> <span class="l">@{}</span><span class="p">;</span>
+</span><span class='line'>    <span class="bp">NSInteger</span> <span class="n">s</span> <span class="o">=</span> <span class="p">[[</span><span class="n">dic</span> <span class="nl">objectForKey</span><span class="p">:</span><span class="n">kSequence</span><span class="p">]</span><span class="n">integerValue</span><span class="p">];</span>
+</span><span class='line'>    <span class="c1">// dic to string</span>
+</span><span class='line'>    <span class="bp">NSString</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="nb">self</span> <span class="nl">serializeCallbackArgumentWithObject</span><span class="p">:</span><span class="n">dic</span><span class="p">];</span>
+</span><span class='line'>    <span class="bp">NSString</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">jsFunction</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSString</span> <span class="nl">stringWithFormat</span><span class="p">:@</span><span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="o">%</span><span class="l">@(</span><span class="o">%</span><span class="n">lu</span><span class="p">,</span><span class="o">%</span><span class="p">@</span><span class="l">)</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;,</span><span class="n">callback</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">arguments</span><span class="p">];</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="p">[</span><span class="nb">self</span><span class="p">.</span><span class="n">webView</span> <span class="nl">stringByEvaluatingJavaScriptFromString</span><span class="p">:</span><span class="n">jsFunction</span><span class="p">];</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">ul</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="nl">serializeCallbackArgumentWithObject</span><span class="p">:(</span><span class="bp">NSDictionary</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span><span class="n">object</span><span class="p">{</span>
+</span><span class='line'>  <span class="bp">NSData</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSJSONSerialization</span> <span class="nl">dataWithJSONObject</span><span class="p">:</span><span class="n">object</span> <span class="nl">options</span><span class="p">:</span><span class="mi">0</span> <span class="nl">error</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+</span><span class='line'>  <span class="bp">NSString</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">str</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">NSString</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithData</span><span class="p">:</span><span class="n">data</span> <span class="nl">encoding</span><span class="p">:</span><span class="n">NSUTF8StringEncoding</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">str</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></li>
+</ul>
+
+
+<p>完整的代码可以在这里<a href="https://github.com/bupojung/BPJSNativeInteract">下载</a></p>
+]]></content>
+  </entry>
+  
+</feed>
