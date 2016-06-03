@@ -4,7 +4,7 @@
   <title><![CDATA[Category: voiceover, | Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/blog/categories/voiceover/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2016-06-03T19:24:18+08:00</updated>
+  <updated>2016-06-03T19:29:00+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -88,25 +88,17 @@ counterElement.accessibilityTraits = UIAccessibilityTraitUpdatesFrequently;
 <h5>4. 通知：</h5>
 
 <p>1）在进入界面是将VoiceOver焦点定位到特定控件。可以使用UIAccessibilityPostNotification发送通知给特定控件，改变voiceOver焦点：（ call UIAccessibilityPostNotification using both the notification UIAccessibilityScreenChangedNotification (which tells VoiceOver that the contents of the screen has changed) and the element you’d like to give focus to)
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">@implementation</span> <span class="nc">MyViewController</span>
-</span><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidAppear:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nv">animated</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'><span class="p">[</span><span class="nb">super</span> <span class="nl">viewDidAppear</span><span class="p">:</span><span class="n">animated</span><span class="p">];</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">UIAccessibilityPostNotification</span><span class="p">(</span><span class="n">UIAccessibilityScreenChangedNotification</span><span class="p">,</span>
-</span><span class='line'><span class="nb">self</span><span class="p">.</span><span class="n">myFirstElement</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="k">@end</span>
-</span></code></pre></td></tr></table></div></figure></p>
+```objectivec
+@implementation MyViewController
+- (void)viewDidAppear:(BOOL)animated
+{
+[super viewDidAppear:animated];</p>
+
+<p>UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification,
+self.myFirstElement);
+}
+@end
+```</p>
 
 <p>2）直接播放一段语音。
 <code>objectivec

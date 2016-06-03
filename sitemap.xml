@@ -31,10 +31,10 @@
     <loc>http://bupojung.github.io/</loc>
   </url>
   <url>
-    <loc>http://bupojung.github.io/blog/categories/</loc>
+    <loc>http://bupojung.github.io/about/</loc>
   </url>
   <url>
-    <loc>http://bupojung.github.io/about/</loc>
+    <loc>http://bupojung.github.io/blog/categories/</loc>
   </url>
   <url>
     <loc>http://bupojung.github.io/blog/categories/ios9-xcode/</loc>
@@ -62,5 +62,11 @@
   </url>
   <url>
     <loc>http://bupojung.github.io/blog/categories/javascript-native/</loc>
+  </url>
+  <url>
+    <loc>http://bupojung.github.io/blog/categories/kong-jian/</loc>
+  </url>
+  <url>
+    <loc>http://bupojung.github.io/blog/categories/feng-zhuang-zu-he-ji-cheng-she-ji-mo-shi/</loc>
   </url>
 </urlset>
