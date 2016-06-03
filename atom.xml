@@ -4,7 +4,7 @@
   <title><![CDATA[Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2016-06-03T19:30:52+08:00</updated>
+  <updated>2016-06-03T19:33:03+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -25,8 +25,12 @@
 
 <p>by bupo.</p>
 
-<p>这里通过实现一个弹出菜单控件为例。弹出菜单如图所示，菜单可以有多行，每一行有多个选项，每一行可能有个标题，每行有多个选项，如果选项个数超过屏幕范围可以左右滑动。点击选项执行对应的功能模块。这里把这个控件命名为ScrollActionSheet。
-<img src="http://bupojung.github.io/static/2016/06/03/actionSheet.jpg" alt="Alt text" /></p>
+<p>这里通过实现一个弹出菜单控件为例。弹出菜单如图所示，菜单可以有多行，每一行有多个选项，每一行可能有个标题，每行有多个选项，如果选项个数超过屏幕范围可以左右滑动。点击选项执行对应的功能模块。这里把这个控件命名为ScrollActionSheet。</p>
+
+<!-- more -->
+
+
+<p><img src="http://bupojung.github.io/static/2016/06/03/actionSheet" alt="Alt text" /></p>
 
 <h4>实现</h4>
 
@@ -35,12 +39,9 @@
 - 包含多个选项和标题的一个可滑动模块HorizontleScrollPannel；
 - 取消按钮，就是一个简单的button；</p>
 
-<!-- more -->
-
-
 <p>这三个部分是ScrollActionSheet的UI，这几个模块中，我们需要找出哪些东西是会变化的，哪些是不变化的，然后把变化的部分独立出来，把不变的封装起来。用户使用的时候只需要通过继承或者组合的方式修改可变的部分就可以使用这个ScrollActionSheet。可以看出用户可能改变的部分都在ActionSheetItemView中，包括图片，标题，点击后的回调方法，还有这个ActionSheetItemView的大小和布局；而HorizontleScrollPanner和整个ScrollActionSheet不需要去改动。
 所以这里ActionSheetItemView 需要负责布局和展示自己的内容，所以我们独立出另一个类ActionSheetItem。大概的关系如下图所示：
-<img src="(/static/2016/06/03/ActionSheetClass.png" alt="Alt text" /></p>
+<img src="(/static/2016/06/03/ActionSheetClass" alt="Alt text" /></p>
 
 <p>使用的时候只需要创建ActionSheetItem添加到ScrollActionSheet中展示就可以了</p>
 
@@ -136,7 +137,7 @@
 
 
 <p>如上面代码所示，LongActionSheetItem继承自ActionSheetItem，比ActionSheetItem多了一个小标题字段，其对应的View为LongActionsSheetItemView负责自定义布局，对于自定义的Item用户只需要继承ActionSheetItem和ActionSheetItemView自定义内容和布局即可。
-<img src="(/static/2016/06/03/ActionSheetDemo.png" alt="Alt text" /></p>
+<img src="(/static/2016/06/03/ActionSheetDemo" alt="Alt text" /></p>
 
 <p>这里通过组合封装达到了易用性的目的，而可扩展性则通过独立出可变模块，通过组合，继承来实现。具体的代码稍后会上传到github，点击这里<a href="https://github.com/bupojung/BPActionScrollActionSheet">下载</a></p>
 ]]></content>
