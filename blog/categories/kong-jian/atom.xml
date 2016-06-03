@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 控件, | Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/blog/categories/kong-jian/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2016-06-03T19:29:00+08:00</updated>
+  <updated>2016-06-03T19:30:24+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -40,60 +40,101 @@
 <img src="(/static/2016/06/03/ActionSheetClass.png" alt="Alt text" /></p>
 
 <p>使用的时候只需要创建ActionSheetItem添加到ScrollActionSheet中展示就可以了
-```objectivec</p>
-
-<h1>pragma mark - config action sheet</h1>
-
-<ul>
-<li><p>(void)showShareView
-{
-  NSMutableArray <em>shareItems = [NSMutableArray array];
-  NSMutableArray </em>moreItems = [NSMutableArray array];</p>
-
-<p>  [shareItems addObject:[BPScrollActionSheetItem itemWithImage:BPIMAGE(@&ldquo;more_icon_share_wx.png&rdquo;) title:@&ldquo;微信好友&rdquo; action:^(BPBaseActionSheetItem <em>item){
-      NSLog(@&ldquo;item click:%@&rdquo;,item);
-  }]];
-  [shareItems addObject:[BPScrollActionSheetItem itemWithImage:BPIMAGE(@&ldquo;more_icon_share_friends.png&rdquo;) title:@&ldquo;微信朋友圈&rdquo; action:^(BPBaseActionSheetItem </em>item){
-      NSLog(@&ldquo;item click:%@&rdquo;,item);
-  }]];
-  [shareItems addObject:[BPScrollActionSheetItem itemWithImage:BPIMAGE(@&ldquo;more_icon_share_qq.png&rdquo;) title:@&ldquo;QQ好友&rdquo; action:^(BPBaseActionSheetItem <em>item){
-      NSLog(@&ldquo;item click:%@&rdquo;,item);
-  }]];
-  [shareItems addObject:[BPScrollActionSheetItem itemWithImage:BPIMAGE(@&ldquo;more_icon_share_qzone.png&rdquo;) title:@&ldquo;QQ空间&rdquo; action:^(BPBaseActionSheetItem </em>item){
-      NSLog(@&ldquo;item click:%@&rdquo;,item);
-  }]];</p>
-
-<p>  BPLongActionSheetItem <em>item = [BPLongActionSheetItem itemWithImage:BPIMAGE(@&ldquo;qualifying_icon_set&rdquo;) title:@&ldquo;偏好设置&rdquo; subTitle:@&ldquo;啦啦啦编辑偏好设置啊&rdquo; action:^(BPBaseActionSheetItem </em>item){
-      NSLog(@&ldquo;item click:%@&rdquo;,item);
-  }];</p>
-
-<p>  [moreItems addObject:item];</p>
-
-<p>  NSDictionary *section = nil;
-  if ([shareItems count] > 0) {
-      section = @{
-                  @&ldquo;title&rdquo;:@&ldquo;掐指一算，你还缺几个兄弟啊！火速召唤他们&rdquo;,
-                  @&ldquo;items&rdquo;:shareItems,
-                  };
-  }</p>
-
-<p>  NSDictionary *upperSection = @{
-                                 @&ldquo;title&rdquo;:@&ldquo;haha &rdquo;,
-                                 @&ldquo;items&rdquo;:moreItems,
-                                 };</p>
-
-<p>  NSArray <em>sections = nil;
-  sections = @[upperSection,section];
-  BPScrollActionSheet </em>actionSheet = [[BPScrollActionSheet alloc] initWithItems:sections description:nil cancelButtonTitle:@&ldquo;取消&rdquo;];
-  [actionSheet showInView:self.view];</p>
-
-<p>  return;
-}
-```
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">showShareView</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="bp">NSMutableArray</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">shareItems</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+</span><span class='line'>    <span class="bp">NSMutableArray</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="n">moreItems</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSMutableArray</span> <span class="n">array</span><span class="p">];</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="p">[</span><span class="n">shareItems</span> <span class="nl">addObject</span><span class="p">:[</span><span class="n">BPScrollActionSheetItem</span> <span class="nl">itemWithImage</span><span class="p">:</span><span class="n">BPIMAGE</span><span class="p">(</span><span class="s">@&quot;more_icon_share_wx.png&quot;</span><span class="p">)</span> <span class="nl">title</span><span class="p">:</span><span class="s">@&quot;微信好友&quot;</span> <span class="nl">action</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">BPBaseActionSheetItem</span> <span class="o">*</span><span class="n">item</span><span class="p">){</span>
+</span><span class='line'>    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;item click:%@&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">);</span>
+</span><span class='line'><span class="p">}]];</span>
+</span><span class='line'><span class="p">[</span><span class="n">shareItems</span> <span class="nl">addObject</span><span class="p">:[</span><span class="n">BPScrollActionSheetItem</span> <span class="nl">itemWithImage</span><span class="p">:</span><span class="n">BPIMAGE</span><span class="p">(</span><span class="s">@&quot;more_icon_share_friends.png&quot;</span><span class="p">)</span> <span class="nl">title</span><span class="p">:</span><span class="s">@&quot;微信朋友圈&quot;</span> <span class="nl">action</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">BPBaseActionSheetItem</span> <span class="o">*</span><span class="n">item</span><span class="p">){</span>
+</span><span class='line'>    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;item click:%@&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">);</span>
+</span><span class='line'><span class="p">}]];</span>
+</span><span class='line'><span class="p">[</span><span class="n">shareItems</span> <span class="nl">addObject</span><span class="p">:[</span><span class="n">BPScrollActionSheetItem</span> <span class="nl">itemWithImage</span><span class="p">:</span><span class="n">BPIMAGE</span><span class="p">(</span><span class="s">@&quot;more_icon_share_qq.png&quot;</span><span class="p">)</span> <span class="nl">title</span><span class="p">:</span><span class="s">@&quot;QQ好友&quot;</span> <span class="nl">action</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">BPBaseActionSheetItem</span> <span class="o">*</span><span class="n">item</span><span class="p">){</span>
+</span><span class='line'>    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;item click:%@&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">);</span>
+</span><span class='line'><span class="p">}]];</span>
+</span><span class='line'><span class="p">[</span><span class="n">shareItems</span> <span class="nl">addObject</span><span class="p">:[</span><span class="n">BPScrollActionSheetItem</span> <span class="nl">itemWithImage</span><span class="p">:</span><span class="n">BPIMAGE</span><span class="p">(</span><span class="s">@&quot;more_icon_share_qzone.png&quot;</span><span class="p">)</span> <span class="nl">title</span><span class="p">:</span><span class="s">@&quot;QQ空间&quot;</span> <span class="nl">action</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">BPBaseActionSheetItem</span> <span class="o">*</span><span class="n">item</span><span class="p">){</span>
+</span><span class='line'>    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;item click:%@&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">);</span>
+</span><span class='line'><span class="p">}]];</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">BPLongActionSheetItem</span> <span class="o">*</span><span class="n">item</span> <span class="o">=</span> <span class="p">[</span><span class="n">BPLongActionSheetItem</span> <span class="nl">itemWithImage</span><span class="p">:</span><span class="n">BPIMAGE</span><span class="p">(</span><span class="s">@&quot;qualifying_icon_set&quot;</span><span class="p">)</span> <span class="nl">title</span><span class="p">:</span><span class="s">@&quot;偏好设置&quot;</span> <span class="nl">subTitle</span><span class="p">:</span><span class="s">@&quot;啦啦啦编辑偏好设置啊&quot;</span> <span class="nl">action</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">BPBaseActionSheetItem</span> <span class="o">*</span><span class="n">item</span><span class="p">){</span>
+</span><span class='line'>    <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;item click:%@&quot;</span><span class="p">,</span><span class="n">item</span><span class="p">);</span>
+</span><span class='line'><span class="p">}];</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="n">moreItems</span> <span class="nl">addObject</span><span class="p">:</span><span class="n">item</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="bp">NSDictionary</span> <span class="o">*</span><span class="n">section</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'><span class="k">if</span> <span class="p">([</span><span class="n">shareItems</span> <span class="n">count</span><span class="p">]</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">section</span> <span class="o">=</span> <span class="l">@{</span>
+</span><span class='line'>                <span class="s">@&quot;title&quot;</span><span class="o">:</span><span class="s">@&quot;掐指一算，你还缺几个兄弟啊！火速召唤他们&quot;</span><span class="p">,</span>
+</span><span class='line'>                <span class="s">@&quot;items&quot;</span><span class="o">:</span><span class="n">shareItems</span><span class="p">,</span>
+</span><span class='line'>                <span class="l">}</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="bp">NSDictionary</span> <span class="o">*</span><span class="n">upperSection</span> <span class="o">=</span> <span class="l">@{</span>
+</span><span class='line'>                               <span class="s">@&quot;title&quot;</span><span class="o">:</span><span class="s">@&quot;haha &quot;</span><span class="p">,</span>
+</span><span class='line'>                               <span class="s">@&quot;items&quot;</span><span class="o">:</span><span class="n">moreItems</span><span class="p">,</span>
+</span><span class='line'>                               <span class="l">}</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="bp">NSArray</span> <span class="o">*</span><span class="n">sections</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'><span class="n">sections</span> <span class="o">=</span> <span class="l">@[</span><span class="n">upperSection</span><span class="p">,</span><span class="n">section</span><span class="l">]</span><span class="p">;</span>
+</span><span class='line'><span class="n">BPScrollActionSheet</span> <span class="o">*</span><span class="n">actionSheet</span> <span class="o">=</span> <span class="p">[[</span><span class="n">BPScrollActionSheet</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithItems</span><span class="p">:</span><span class="n">sections</span> <span class="nl">description</span><span class="p">:</span><span class="nb">nil</span> <span class="nl">cancelButtonTitle</span><span class="p">:</span><span class="s">@&quot;取消&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="p">[</span><span class="n">actionSheet</span> <span class="nl">showInView</span><span class="p">:</span><span class="nb">self</span><span class="p">.</span><span class="n">view</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">return</span><span class="p">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 如上面代码所示，LongActionSheetItem继承自ActionSheetItem，比ActionSheetItem多了一个小标题字段，其对应的View为LongActionsSheetItemView负责自定义布局，对于自定义的Item用户只需要继承ActionSheetItem和ActionSheetItemView自定义内容和布局即可。
-<img src="(/static/2016/06/03/ActionSheetDemo.png" alt="Alt text" /></p></li>
-</ul>
-
+<img src="(/static/2016/06/03/ActionSheetDemo.png" alt="Alt text" /></p>
 
 <p>这里通过组合封装达到了易用性的目的，而可扩展性则通过独立出可变模块，通过组合，继承来实现。具体的代码稍后会上传到github，点击这里<a href="https://github.com/bupojung/BPActionScrollActionSheet">下载</a></p>
 ]]></content>
