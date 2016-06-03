@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 控件, | Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/blog/categories/kong-jian/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2016-06-03T19:38:35+08:00</updated>
+  <updated>2016-06-03T19:41:15+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -18,10 +18,7 @@
     <link href="http://bupojung.github.io/blog/2016/06/03/shi-xian-%5B%3F%5D-ge-kong-jian-de-si-lu/"/>
     <updated>2016-06-03T19:24:09+08:00</updated>
     <id>http://bupojung.github.io/blog/2016/06/03/shi-xian-[?]-ge-kong-jian-de-si-lu</id>
-    <content type="html"><![CDATA[<h3>实现一个控件的思路</h3>
-
-<p>——易用性和可扩展性
-@(学习)[objecitve-c, 控件, 封装,组合,继承,设计模式]</p>
+    <content type="html"><![CDATA[<p>——易用性和可扩展性</p>
 
 <p>by bupo.</p>
 
