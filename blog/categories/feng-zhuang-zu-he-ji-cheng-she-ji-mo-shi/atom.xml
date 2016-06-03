@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 封装,组合,继承,设计模式 | Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/blog/categories/feng-zhuang-zu-he-ji-cheng-she-ji-mo-shi/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2016-06-03T19:30:24+08:00</updated>
+  <updated>2016-06-03T19:30:52+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -34,6 +34,9 @@
 - 选项按钮ActionSheetItemView；
 - 包含多个选项和标题的一个可滑动模块HorizontleScrollPannel；
 - 取消按钮，就是一个简单的button；</p>
+
+<!-- more -->
+
 
 <p>这三个部分是ScrollActionSheet的UI，这几个模块中，我们需要找出哪些东西是会变化的，哪些是不变化的，然后把变化的部分独立出来，把不变的封装起来。用户使用的时候只需要通过继承或者组合的方式修改可变的部分就可以使用这个ScrollActionSheet。可以看出用户可能改变的部分都在ActionSheetItemView中，包括图片，标题，点击后的回调方法，还有这个ActionSheetItemView的大小和布局；而HorizontleScrollPanner和整个ScrollActionSheet不需要去改动。
 所以这里ActionSheetItemView 需要负责布局和展示自己的内容，所以我们独立出另一个类ActionSheetItem。大概的关系如下图所示：
