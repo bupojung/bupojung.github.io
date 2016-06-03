@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 封装,组合,继承,设计模式 | Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/blog/categories/feng-zhuang-zu-he-ji-cheng-she-ji-mo-shi/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2016-06-03T19:37:35+08:00</updated>
+  <updated>2016-06-03T19:38:35+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -137,8 +137,9 @@
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
-如上面代码所示，LongActionSheetItem继承自ActionSheetItem，比ActionSheetItem多了一个小标题字段，其对应的View为LongActionsSheetItemView负责自定义布局，对于自定义的Item用户只需要继承ActionSheetItem和ActionSheetItemView自定义内容和布局即可。
-<img src="/static/2016/06/03/ActionSheetDemo.png" alt="Alt text" /></p>
+如上面代码所示，LongActionSheetItem继承自ActionSheetItem，比ActionSheetItem多了一个小标题字段，其对应的View为LongActionsSheetItemView负责自定义布局，对于自定义的Item用户只需要继承ActionSheetItem和ActionSheetItemView自定义内容和布局即可。</p>
+
+<p><img src="/static/2016/06/03/ActionSheetDemo.png" alt="Alt text" /></p>
 
 <p>这里通过组合封装达到了易用性的目的，而可扩展性则通过独立出可变模块，通过组合，继承来实现。具体的代码稍后会上传到github，点击这里<a href="https://github.com/bupojung/BPActionScrollActionSheet">下载</a></p>
 ]]></content>
