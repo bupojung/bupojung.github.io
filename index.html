@@ -9,7 +9,7 @@
 	<meta name="author" content="bupo">
 
 	
-	<meta name="description" content="objecitve-c,, 封装,组合,继承,设计模式, 控件, 实现一个控件的思路 ——易用性和可扩展性 by bupo. 这里通过实现一个弹出菜单控件为例。弹出菜单如图所示，菜单可以有多行，每一行有多个选项，每一行可能有个标题，每行有多个选项，如果选项个数超过屏幕范围可以左右滑动。 &hellip;">
+	<meta name="description" content="直播终端优化总结 @(工作)[视频, ijkplayer, 编码] 由来 从接手做第一个版本到现在我们为加快首屏加载速度做过两次优化，到当前本基本上完成了视频秒开的目标。其实当知道加载速度慢的原因后最终的修改其实没什么复杂的，复杂的是分析原因的过程，这里主要分享一下从一开始的外部表现， &hellip;">
 	
 
   <!-- http://t.co/dKP3o1e -->
@@ -95,6 +95,63 @@
 			<div class="mid-col-container">
 				<div id="content" class="inner">
 <div itemscope itemtype="http://schema.org/Blog">
+
+
+    <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2017-02-16T23:56:13+08:00" data-updated="true" itemprop="datePublished"></time></div>
+		<div class="tags">
+
+</div>
+		
+	</div>
+	<h1 class="title" itemprop="name"><a href="/blog/2017/02/16/zhi-bo-zhong-duan-you-hua-zong-jie/" itemprop="url">直播终端优化总结</a></h1>
+	<div class="entry-content" itemprop="articleBody">
+		<p>@(工作)[视频, ijkplayer, 编码]</p>
+
+<h4>由来</h4>
+
+<p>从接手做第一个版本到现在我们为加快首屏加载速度做过两次优化，到当前本基本上完成了视频秒开的目标。其实当知道加载速度慢的原因后最终的修改其实没什么复杂的，复杂的是分析原因的过程，这里主要分享一下从一开始的外部表现，逐步分析原因，到最终得到优化方案，验证优化成果的流程。希望这个过程也能给其他项目提供一些借鉴。</p>
+
+<h4>优化方法</h4>
+
+<ul>
+<li>明确优化目标
+
+<ul>
+<li>1s内实现用户点击房间到首帧渲染完成</li>
+</ul>
+</li>
+<li>自顶向下分析：
+
+<ul>
+<li>操作流程分解，找到流程中的问题；</li>
+<li>逐步向底层深入，分析性能瓶颈；</li>
+<li>得出优化方案</li>
+<li>数据验证结果</li>
+</ul>
+</li>
+</ul>
+
+
+
+		
+		<a href="/blog/2017/02/16/zhi-bo-zhong-duan-you-hua-zong-jie/" class="more-link">阅读更多 &rarr;</a>
+	</div>
+
+</article>
 
 
     <article class="post" itemprop="blogPost" itemscope itemtype="http://schema.org/BlogPosting">
