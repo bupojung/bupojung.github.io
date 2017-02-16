@@ -1,0 +1,33 @@
+---
+layout: post
+title: "App Thinning"
+date: 2015-11-30 00:25:58 +0800
+comments: true
+categories: ios9,xcode
+---
+##App Thinning
+@(学习)[ios9|xcode]
+
+>iOS8刚发布的时候，要更新到最新版本需要用户手机至少5.7GB的剩余空间，导致很多16GB手机的用户不愿意升级到最新版本。苹果为了提高新版本的覆盖率，在iOS9做了一系列的安装包大小的优化，更新到iOS9只需要1.3GB的剩余空间。除了对系统包大小进行优化外，苹果为了为用户腾出更多的空间，推出了一些列方案为应用减少包大小，也就是App Thinning。
+<!-- more -->
+App Thining包括三项技术：
+* App Slicing
+* On Demand Resources (ODR)
+* BitCode
+
+这三项技术通过优化安装包生成，发布，下载的流程来减少应用最终安装到用户手机上的占用空间。下面分别介绍：
+
+###App Slicing
+大部分应用需要支持不同的苹果设备，包括iPhone4~iPhone6P,各种iPad，不同的设备有不同的屏幕分辨率，不同的屏幕尺寸，不同的CPU和GPU，一般情况下应用会把所有的 支持不同设备的资源（1x,2x,3x的图片，支持GPU的渲染资源）和支持不同硬件架构的二进制代码（支持32bit和64bit）都打包到安装包提交到AppStore，然后用户下载安装应用，这样用户的手机空间里就会包含很多冗余的数据。
+
+为了解决这个问题，苹果提出了App Slicing，Xcode在创建安装包的时候对针对不同设备的资源和二进制数据进行标记，并创建一个支持不同设备的安装包，提交到AppStore。用户在下载应用的时候，AppStore根据用户的设备类型生成只针对该设备的安装包。这样对用户来说就减少了安装包大小，不需要下载多余的数据。
+
+![Alt text](/static/appthining)
+
+新版的XCode将会支持App Slicing，开发者可以生成一个通用的安装包，然后导出针对不同特定设备的安装包进行安装包大小比较，同时用针对不同设备的安装包进行测试。
+###On Demand Resources（ODR）
+ODR顾名思义，就是在需要的时候去下载资源（包括图片和声音），不是必要的资源不随安装包一起下载，而是在用户使用应用到某个场景的时候才去服务器下载资源。这样的好处是下载应用更快，同时提高第一次启动应用的体验。这些资源由AppStore存储维护。比如，游戏应用可以把根据游戏关卡对资源进行分组，当用户将要进行到下一个关卡的时候才去请求资源。
+Xcode7通过对资源进行分组标记支持ODR，通过使用一个关键字对一组资源进行标记，安装包提交到AppStore后，AppStore会对标记的资源进行分离存储，最终用户下载的安装包将不包含这部分数据。应用通过NSBundleResourceRequest接口下载需要的资源。
+###BitCode
+BitCode可以理解为应用程序的中间代码（Bitcode is an intermediate representation of a compiled program.）。提交到AppStore的包会包含Bitcode，AppStore会使用bitcode对应用重新编译生成最终的安装包。这样的好处是如果未来SDK更新了，开发者不需要提交新版本，苹果就能使用bitcode基于新SDK对应用进行重新编译生成支持SDK新特性的安装包。
+

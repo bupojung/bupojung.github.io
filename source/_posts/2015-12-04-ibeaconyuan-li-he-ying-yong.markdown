@@ -1,0 +1,208 @@
+---
+layout: post
+title: "iBeacon原理和应用"
+date: 2015-12-04 17:01:05 +0800
+comments: true
+categories: iBeacon, iOS
+---
+
+![Alt text](/static/2015/12/05/ibeaconLogo)
+
+##简介
+>iBeacon是苹果在iOS 7.0 引入的一项新的位置感知特性，其工作方式是，配备有 低功耗蓝牙（**Bluetooth Low Energy **，BLE）通信功能的设备使用BLE技术向周围发送自己特有的ID，接收到该ID的应用软件会根据接收到的ID和信号源产生互动。不同功率的BLE设备的信号范围在10m~100m不等，当手机进入信号范围时，能接收到信号源广播的ID（UUID+Major+Minor）, App通过解析接收到的ID向用户推送通知或者其他资讯。
+<!-- more -->
+##原理
+####BLE
+Bluetooth Low Energy（BLE）是2010年发布的蓝牙4.0技术规范的一部分。BLE最重要的特点当然在于它的低能耗。传统蓝牙和LE蓝牙使用的都是相同的波段（2.4GHz-2.4835GHz）。BLE协议的传输速率比较低，因此除了用于发现设备和做一些简单通信之外，不太适合用于传输大量的数据流。在协议条款上，LE和传统蓝牙的信号都能够覆盖到100米的范围。
+
+####iBeacon广播信息UUID+Major+Minor
+每个iBeacon设备都有一个唯一ID(UUID+Major+Minor)，在一个区域内广播信号，通过信号中的ID信息标记一个特定区域。
+| Filed     |    size | Description  |
+| :-------- | --------:| :--: |
+| UUID      |  16 bytes|  用于将你的iBeacon和别的iBeacon区别的唯一标识   |
+| Major     |   2 bytes|  用于将相关的iBeacon标记为一组  |
+| Minor     |   2 bytes|  标记特定的一个iBeacon  |
+举个例子，如果你有一家全国连锁百货公司，你可以在你的店里部署iBeacon，当用户进入iBeacon范围内的时候提供一定的优惠资讯，那么你所有的 iBeacon 发射器都可有同一个 UUID ，但每个店都有它自己的Major值，而里面的每个部门就会有它自己的Minor值。如下表所示：
+![Alt text](/static/2015/12/05/ibeaconUUID)
+
+
+##应用
+>iBeacon作为一种位置感知技术，现有的应用主要有两个方面：1. 通过检测是否进入iBeacon区域向用户进行消息推送；2. 通过利用信号强度以及部署的基站信息进行室内定位。
+####利用 iBeacon 进行消息推送
+苹果在iOS 7 及以上为iBeacon提供了系统级的支持，如果在iOS App中监听了某一个特定的iBeacon，当用户持手机进入该iBeacon信号范围内时，应用会被唤醒。我们所说的利用iBeacon进行消息推送，其实是需要App配合的。
+
+**目前推送的实现逻辑有几种：**
+
+* 用户进入 iBeacon 覆盖范围 －> 应用被唤醒 －> 应用请求云端数据 －> 应用发送 Local Notification 向用户推送内容。
+
+	 >优点:推送内容实时性，自定义程度高
+ 缺点:网络条件要求高
+* 用户进入 iBeacon 覆盖范围 －> 应用被唤醒 －> 应用查看本地缓存推送内容 －> 应用发送 Local Notification 向用户推送内容。
+
+	 >优点: 不需要网络
+ 缺点:推送内容实时性较差
+ 
+* 用户进入 iBeacon 覆盖范围 －> 打开应用－> 应用主动搜索周边的iBeacon信号－> 根据收到的iBeacon向用户托送信息。
+	>优点：可以对多个iBeacon进行处理
+	>缺点: 需要主动触发
+####室内定位
+iBeacon 的信号强度采用 RSSI（Received Signal Strength Indication接收的信号强度指示） 值表示。与其他无线信号一样,随着距离的远近, RSSI 值会产生 变化。我么可以通过 RSSI 值的变化来判断用户距离 iBeacon 设备的远近。而设备距离 iBeacon 的距离,在 iOS SDK 中可直接通过 iBeacon 对应的 Accuracy 值读出,单位为米。
+
+但由于信号的波动,以及物理空间复杂的环境因素。iBeacon 的距离测算并不是十分精准,所 以 Apple 定义了四种范围值:
+
+* Immediate 很近，小于1米。
+* Near 附近,约1⽶-3米。
+* Far 较远。
+* Unknown 未知，⼀般出现在启动阶段，或者因为某些原因⽆无法判断。
+这里的Far，设备不一定距离iBeacon真的很远，很可能距离iBeacon很近（比如1米），但是没有足够的信息证明设备距离iBeacon很近。所以Far只是表示一个范围，设备可能在范围内的任一点。
+![enter image description here](/static/2015/12/05/ibeaconPhone)
+
+
+>**Tips**：iBeacon是一种位置感知技术，要用于定位需要知道iBeacon基站的物理位置部署信息，并通过复杂的算法计算用户位置。
+
+
+**定位方案**
+* 单点定位
+	当时别到有在near（1m内）范围内的iBeacon基站时就是用该基站的位置坐标作为用户当前坐标。可以通过部署密集的iBeacon设备达到较高的定位精度。比如在博物馆内不同展区部署iBeacon达到室内定位的作用。
+* 两点定位
+根据两点确定一条双曲线的原理，通过计算识别到的两个ibeacon设备的RSSI信号计算用户的位置。一般适合在相对狭长的的物理空间内定位，通过物理空间的局限，配合RSSI值计算可以达到较好的定位效果。
+* 多点定位
+和两点定位类似，通过RSSI值计算到三个iBeacon设备的距离，计算用户位置。此种方式算法比较复杂，适合在空旷的场所部署。
+
+###iOS API使用
+**iOS系统提供两种处理iBeacon的能力：**
+*  Beacon区域的监控
+*  估算到iBeacon的距离
+
+
+####区域监控
+iOS把对iBeacon的支持集成在CoreLocation框架下，使用CLLocationManager类检测iBeacon信号，CLBeaconRegion描述一个iBeacon基站区域。
+
+
+![enter image description here](/static/2015/12/05/ibeaconClass)
+
+#####sampleCode: 检测一个Region
+```objc
+
+//定位权限申请
+CLAuthorizationStatus stat = [CLLocationManager authorizationStatus] ;
+if (stat == kCLAuthorizationStatusDenied || stat == kCLAuthorizationStatusRestricted) {
+        NSLog(@"not allowed!");
+        return;
+}
+    
+if (stat == kCLAuthorizationStatusNotDetermined) {
+      [self.locationManager requestAlwaysAuthorization];
+}
+
+//创建一个beaconRegion
+NSUUID *uuid = [[NSUUID alloc]initWithUUIDString:@"74278BDA-B644-4520-8F0C-720EAF059935"];
+self.region = [[CLBeaconRegion alloc] initWithProximityUUID:uuid identifier:BeaconIdentifier];
+self.region.notifyEntryStateOnDisplay = YES;
+self.region.notifyOnEntry = YES;
+self.region.notifyOnExit = NO;
+//开始监控
+
+
+self.locationManager = [[CLLocationManager alloc] init];
+self.locationManager.delegate = self;
+[self.locationManager startMonitoringForRegion:self.region];
+if ([CLLocationManager isRangingAvailable]) {
+    [self.locationManager startRangingBeaconsInRegion:self.region];
+}
+```
+
+如果启动成功，locationmanager会开始回调region的状态，调用时机通过**CLBeaconRegion对象的参数设置**：
+> * notifyEntryStateOnDisplay:当手机屏幕亮着的时候，如果用户在监控区域内会收到回调；
+>* notifyOnExit：离开region收到回调；
+>* notifyOnEntry：进入region收到回调；
+
+```objc
+- (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region
+```
+
+####检测iBeacon距离（Ranging Beacons）
+
+当用户进入iBeacon区域后，设备可以获得更高精度的信号采样，从而可以检查在区域内的iBeacon设备信号强度和估算距离。iOS API提供了如下几个接口处理CLBeaconRegion内的iBeacon设备距离的检测：
+```objc
+- (void)startRangingBeaconsInRegion:(CLBeaconRegion *)region；
+- (void)stopRangingBeaconsInRegion:(CLBeaconRegion *)region；
+```
+推荐在接收到 CLLocationManager:didDetermineState: callback回调并确定进入某个区域后，调用startRangingBeaconInRegion:检测区域内的iBeacon距离，当用户收到离开该区域后调用stopRangingBeaconInRegion：。
+调用startRangingBeaconsInRegion:后，系统会定时回调以下方法：
+```objc
+- (void)locationManager:(CLLocationManager *)manager didRangeBeacons:(NSArray *)beacons inRegion:(CLBeaconRegion *)region
+```
+
+其中beacons参数是在该区域内检测到得iBeacon设备信息列表，我们可以从中得到区域内多个iBeacon设备的信息。
+![enter image description here](/static/2015/12/05/CLBeaconClass)
+
+> * proximity：初略估算iBeacon的距离，有几种状态，CLProximityUnknown, CLProximityImmediate, CLProximityNear, 和 CLProximityFar；
+> * accuracy：估算距离，单位m；
+> * rssi：信号强度；
+
+![enter image description here](/static/2015/12/05/range)
+
+####问题
+* 如何监控多个Region？
+可以监控多个Region，每个region的identifier属性不能一样，如果一样会覆盖掉相同属性的Region，通过调用 tartRangingBeaconsInRegion:注册监听的Region。
+
+* 能否监控未提前知道UUID的iBeacon设备？
+	iOS没有公开的API支持这个功能，监控iBeacon区域需要先知道UUID。MacOSX可以通过解析蓝牙广播报文获得iBeacon UUID+Major+Minor.iOS不支持。
+##有趣的应用场景
+* 天气助手
+ ![enter image description here](/static/2015/12/05/ex1)
+你是否遇到过忘记看天气预报下雨出门没带雨伞？或者看了天气预报，匆匆出门还是忘带了。日本一家公司推出了一个基于iBeacon的使用工具，可以让你轻松甩掉这个烦恼。只需要下载这个APP,并且购买一个iBeacon小装置放在门口，当每天出门时不用打开APP,如果要下雨APP会自动弹出提醒你带好雨伞！
+* 追踪行李的小应用
+![enter image description here](/static/2015/12/05/ex2)
+等行李所有人都有过痛苦的经历，伸长脖子盯着自己的行李是否出来了。通过在行李箱防止iBeacon，当行李箱接近是弹出提醒，有了这个iBeacon应用，可以轻松的坐在边上等着，手机会自动感应行李的到来
+
+* 意大利动物园部署iBeacon互动导览
+![enter image description here](/static/2015/12/05/ex3)
+就可以用手机根据游览位置解锁相应导览介绍和获得游览奖励了，这完全基于iBeacon技术，它被安装爱金16万平米的园区里，可以为整个游览过程带来寓教于乐的新奇体验。APP提供了一张可以与游览者互动的电子地图，不但起到导览，而且可以在有特色的重点区域给予自动提示。
+
+* iBeacon还可以帮助咖啡馆这样运营
+美国的一家创业公司专门针对咖啡馆推出了一款APP,通过安装在咖啡馆里的iBeacon基站提供订位，计时长和自动付款服务。很多咖啡馆会遇到来坐着不消费又蹭网的问题，这个APP建议咖啡馆干脆退出类似场地租用的服务，通过所待时长收取一定费用，消费者可以通过APP远程预定座位，收取一定数额定金，当走入咖啡馆时通过iBeacon自动感应签到提示并开始计时，离开时自动计算所待时长和从关联的信用卡扣除相应费用。
+
+* 博物馆，shopping mall
+####支持iBeacon的手机
+运行 iOS7 以上版本的手机，包括：
+* iPhone 4S 及以上；
+* iPad 2 及以上；
+* iPod 5；
+
+运行 Android 4.3 以上，支持蓝牙 4.0 的安卓设备，常见设备有：
+
+* 三星 Galaxy 系列；
+* 华为荣耀3C及以上；
+* 小米 2S 及以上；
+
+
+
+**借鉴微信的接入流程：**
+
+![enter image description here](/static/2015/12/05/wechat)
+
+
+如上图，实现分如下四个步骤：
+       第一步. 服务提供者向微信后台申请服务，微信后台生成一个IBeaconId,并将其映射到服务提供者提供的服务，再将IBeaconId告诉服务提供者;
+       第二步. 服务提供者把第一步拿到的IBeaconId设置到IBeacon设备上，让IBeacon设备广播该IBeaconId;
+       第三步. 用户在该IBeacon设备的信号范围内打开微信摇一摇周边，微信App拿到该IBeaconId;
+       第四步. 微信通过第三步拿到的IBeaconId，向微信后台拉取相应的服务，展示在摇出来的结果上。
+       第五步. 用户点击摇出来结果，在微信内嵌的浏览器上，会带上用户信息跳转到服务提供者在第一步申请服务时填的url，进入应用页面
+
+
+##总结
+
+iBeacon可能是一个在较长时间被低估了的技术，尤其在对O2O线下消费的体验丰满与提升方面，不过这种状况可能随着一些巨头的尝试性介入而得到改变。
+
+
+##参考
+* [微信摇一摇周边](http://djt.qq.com/article/view/1284)
+* [iBeacon定位实践](http://blog.sensoro.com/ibeacon-ding-wei-shi-jian/) 
+* [Beacon Monitoring in the Background and Foreground](http://developer.radiusnetworks.com/2013/11/13/ibeacon-monitoring-in-the-background-and-foreground.html)
+* [iBeacons: Can My iOS App Find Beacons That Aren’t Mine?](http://beekn.net/2013/10/ibeacons-can-my-ios-app-find-beacons-that-arent-mine/)
+
+
+
+
