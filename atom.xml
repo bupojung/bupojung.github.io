@@ -4,7 +4,7 @@
   <title><![CDATA[Bupo's Blog]]></title>
   <link href="http://bupojung.github.io/atom.xml" rel="self"/>
   <link href="http://bupojung.github.io/"/>
-  <updated>2017-02-17T15:10:15+08:00</updated>
+  <updated>2017-02-17T15:14:52+08:00</updated>
   <id>http://bupojung.github.io/</id>
   <author>
     <name><![CDATA[bupo]]></name>
@@ -54,11 +54,11 @@
 
 <p>推流流程：</p>
 
-<p><img src="../static/2017/02/16/pushStream.png" alt="Alt text" /></p>
+<p><img src="http://bupojung.github.io/static/2017/02/16/pushStream.png" alt="Alt text" /></p>
 
 <p>拉流流程：</p>
 
-<p><img src="../static/2017/02/16/pullStream.png" alt="Alt text" /></p>
+<p><img src="http://bupojung.github.io/static/2017/02/16/pullStream.png" alt="Alt text" /></p>
 
 <p>如图所示，从摄像头和麦克风获取到视频和音频数据，对于视频我们可能还需要做一些处理，比如加美颜滤镜或者其他的处理，这些原始数据是不适合直接在网络上实时传输的，第一是因为原始数据体积比较大，传输效率低；其次是因为要在网络上实时传输音视频，需要将音视频流分解成小块数据包，而原始数据需要添加音视频同步信息保证接收端能还原出完整的音视频流。所以获取到视频流和音频流之后分别进行编码，现在视频编码使用比较高效的H.264,而音频则使用AAC编码格式。
 经过编码后，压缩了传输输数据，下一步是视频封装，将压缩后的音视频以某种格式封装，再使用RTMP网络协议封包推送到服务器。</p>
@@ -72,7 +72,7 @@
 <li><p>I帧，B帧和P帧：I帧是靠尽可能去除图像空间冗余信息来压缩传输数据量的帧内编码图像； P帧是通过充分降低与图像序列中前面已编码帧的时间冗余信息来压缩传输数据量的编码图像，也叫预测帧； B帧是既考虑与源图像序列前面已编码帧，也顾及源图像序列后面已编码帧之间的时间冗余信息来压缩传输数据量的编码图像，也叫双向预测帧；一般地，I帧压缩效率最低，P帧较高，B帧最高。I帧是通过帧内预测编码的，在获取到I帧后能解码出相应的图像，而P帧和B帧需要依赖相邻的帧才能解码出图像；</p></li>
 <li><p>GOP：( Group of Pictures ) 是一组连续的画面，由一张 I 帧和数张 B / P 帧组成，是视频图像编码器和解码器存取的基本单位，它的排列顺序将会一直重复到影像结束。</p></li>
 <li><p>GOP间隔：是指一个画面序列中相邻两个I帧的间隔时间，如图所示：
-<img src="../static/2017/02/16/GOPInterval.jpg" alt="Alt text" /></p></li>
+<img src="http://bupojung.github.io/static/2017/02/16/GOPInterval.jpg" alt="Alt text" /></p></li>
 <li><p>封装格式：音视频文件封装格式有avi、rmvb、flv、mkv、MP4等等，封装格式就是把音视频数据打包成一个文件的规范。一般会包含音视频编码类型，时间戳，采样率等信息，方便接收方解析出原始数据。</p></li>
 <li><p>视频码率：码率的单位为kbps，指每秒视频数据量，其值跟每秒视频帧数FPS，图像分辨率以及编码器压缩率有关。</p></li>
 <li><p>首屏时间：用户点击一个视频到第一个视频画面展示出来的这段时间，是衡量直播体验的关键数据。</p></li>
@@ -85,7 +85,7 @@
 
 <p>酒窝原来的进房间流程如下图所示：</p>
 
-<p><img src="../static/2017/02/16/inroomProcess.png" alt="Alt text" /></p>
+<p><img src="http://bupojung.github.io/static/2017/02/16/inroomProcess.png" alt="Alt text" /></p>
 
 <p>左边的流程图问题很明显，其实拉流和拉房间信息不应该相互依赖，所用的数据应该在用户点击房间前准备好，这个问题的来源是刚接手做第一个版本的时候后台人手不足，移动端只能使用PC端原有的接口来做，这是妥协的结果。</p>
 
@@ -116,7 +116,7 @@
 </ol>
 
 
-<p><img src="../static/2017/02/16/inroomProcess-afterTunning.png" alt="Alt text" /></p>
+<p><img src="http://bupojung.github.io/static/2017/02/16/inroomProcess-afterTunning.png" alt="Alt text" /></p>
 
 <h5>结果</h5>
 
@@ -132,7 +132,7 @@
 
 <p>通过分析IJKPlayer拉流流程如下：</p>
 
-<p><img src="../static/2017/02/16/pullStreamDetail.png" alt="Alt text" /></p>
+<p><img src="http://bupojung.github.io/static/2017/02/16/pullStreamDetail.png" alt="Alt text" /></p>
 
 <p>通过打时间戳点发现，有两个阶段耗时比较多：</p>
 
@@ -242,7 +242,7 @@
 
 <p>下面是现网数据上报统计的结果，基本在一秒内看到首屏画面，实际的体验比之前好了很多。</p>
 
-<p><img src="../static/2017/02/16/dataAfterTunning1.jpeg" alt="Alt text" /></p>
+<p><img src="http://bupojung.github.io/static/2017/02/16/dataAfterTunning1.jpeg" alt="Alt text" /></p>
 
 <h5>推流端优化点</h5>
 
